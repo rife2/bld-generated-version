@@ -7,6 +7,8 @@
     <pattern value="rife.bld.extension.GeneratedVersionOperation" />
     <pattern value="rife.bld.extension.GeneratedVersionOperation" method="packageName" />
     <pattern value="rife.bld.extension.GeneratedVersionOperation" method="projectName" />
+    <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" />
+    <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" method="pmd" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />
