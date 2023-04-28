@@ -1,0 +1,20 @@
+package {{v packageName/}};
+
+import java.util.Date;
+
+/**
+ * Provides project version information.
+ */
+public final class {{v className/}} {
+    public static final int MAJOR = {{v major/}};
+    public static final int MINOR = {{v minor/}};
+    public static final int REVISION = {{v revision/}};
+    public static final String QUALIFIER = "{{v qualifier/}}";
+
+    /**
+     * Disables the default constructor.
+     */
+    private {{v className/}}() {
+        throw new UnsupportedOperationException("Illegal constructor call.");
+    }
+}
