@@ -29,6 +29,7 @@ import java.io.File;
 @SuppressWarnings("PMD.DataClass")
 public class GeneratedVersion {
     private String className;
+    private File classFile;
     private String packageName;
     private BaseProject project;
     private String projectName;
@@ -38,36 +39,44 @@ public class GeneratedVersion {
         return className;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public BaseProject getProject() {
-        return project;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public File getTemplate() {
-        return template;
-    }
-
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public File getClassFile() {
+        return classFile;
+    }
+
+    public void setClassFile(File classFile) {
+        this.classFile = classFile;
+    }
+
+    public String getPackageName() {
+        return packageName;
     }
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 
+    public BaseProject getProject() {
+        return project;
+    }
+
     public void setProject(BaseProject project) {
         this.project = project;
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public File getTemplate() {
+        return template;
     }
 
     public void setTemplate(File template) {
