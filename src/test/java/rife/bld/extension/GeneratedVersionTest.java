@@ -18,10 +18,14 @@ package rife.bld.extension;
 
 import org.junit.jupiter.api.Test;
 import rife.bld.BaseProject;
-import rife.bld.WebProject;
+import rife.bld.Project;
 import rife.bld.dependencies.VersionNumber;
+import rife.tools.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 1.0
  */
 class GeneratedVersionTest {
-    private final BaseProject PROJECT = new WebProject() {
+    private final BaseProject PROJECT = new Project() {
         @Override
         public String pkg() {
             return "com.example";
@@ -48,6 +52,17 @@ class GeneratedVersionTest {
             return new VersionNumber(2, 1, 3);
         }
     };
+
+    static void deleteOnExit(File folder) {
+        folder.deleteOnExit();
+        for (var f : Objects.requireNonNull(folder.listFiles())) {
+            if (f.isDirectory()) {
+                deleteOnExit(f);
+            } else {
+                f.deleteOnExit();
+            }
+        }
+    }
 
     @Test
     void buildTemplateCustomTest() {
@@ -80,6 +95,26 @@ class GeneratedVersionTest {
         assertThat(t.getContent()).contains("package com.example;").contains("class GeneratedVersion")
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
                 .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("VERSION = \"2.1.3\"")
+                .contains("private GeneratedVersion");
+    }
+
+    @Test
+    void testWriteTemplate() throws IOException {
+        var gv = new GeneratedVersion();
+        gv.setProject(PROJECT);
+        var t = GeneratedVersionOperation.buildTemplate(gv);
+
+        var tmpDir = Files.createTempDirectory("bldGeneratedVersion").toFile();
+
+        GeneratedVersionOperation.writeTemplate(t, tmpDir, gv);
+
+        assertThat(gv.getClassFile()).exists();
+
+        deleteOnExit(tmpDir);
+
+        var versionClass = FileUtils.readString(gv.getClassFile());
+        assertThat(versionClass).contains("package com.example;").contains("class GeneratedVersion")
+                .contains("MAJOR = 2").contains("MINOR = 1").contains("REVISION = 3")
                 .contains("private GeneratedVersion");
     }
 }

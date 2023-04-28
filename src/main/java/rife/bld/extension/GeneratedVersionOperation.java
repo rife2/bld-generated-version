@@ -21,11 +21,12 @@ import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
 import rife.resources.ResourceFinderDirectories;
 import rife.template.Template;
+import rife.template.TemplateConfig;
 import rife.template.TemplateFactory;
 import rife.tools.FileUtils;
-import rife.tools.exceptions.FileUtilsErrorException;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -60,7 +61,8 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
             template = TemplateFactory.TXT.get("version.txt");
         } else {
             var files = new ResourceFinderDirectories(new File[]{gv.getTemplate().getParentFile()});
-            template = TemplateFactory.TXT.setResourceFinder(files).get(gv.getTemplate().getName());
+            template = new TemplateFactory(TemplateConfig.TXT, "txtFiles", TemplateFactory.TXT)
+                    .setResourceFinder(files).get(gv.getTemplate().getName());
         }
 
         if (gv.getPackageName() == null) {
@@ -110,27 +112,32 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         return template;
     }
 
-    public static void writeTemplate(Template template, GeneratedVersion gv) {
-        Path generatedVersionPath;
+    public static void writeTemplate(Template template, File directory, GeneratedVersion gv) {
         if (gv.getPackageName() != null) {
-            generatedVersionPath = Path.of(gv.getProject().srcMainJavaDirectory().getAbsolutePath(),
-                    gv.getPackageName().replace(".", File.separator), gv.getClassName());
+            gv.setClassFile(Path.of(directory.getAbsolutePath(),
+                    gv.getPackageName().replace(".", File.separator), gv.getClassName() + ".java").toFile());
         } else {
-            generatedVersionPath = Path.of(gv.getProject().srcMainJavaDirectory().getAbsolutePath(),
-                    gv.getClassName());
+            gv.setClassFile(Path.of(directory.getAbsolutePath(), gv.getClassName() + ".java").toFile());
         }
 
-        if (generatedVersionPath.getParent().toFile().mkdirs()) {
-            try {
-                FileUtils.writeString(template.getContent(), generatedVersionPath.toFile());
-            } catch (FileUtilsErrorException e) {
-                if (LOGGER.isLoggable(Level.SEVERE)) {
-                    LOGGER.log(Level.SEVERE, "Unable to write the version class file.", e);
-                }
+        if (!gv.getClassFile().getParentFile().exists()) {
+            var mkdirs = gv.getClassFile().getParentFile().mkdirs();
+            if (!mkdirs && !gv.getClassFile().getParentFile().exists() && LOGGER.isLoggable(Level.SEVERE)) {
+                LOGGER.log(Level.SEVERE, "Could not create project package directories: {0}",
+                        gv.getClassFile().getParent());
             }
-        } else {
+        }
+
+        try {
+            var updated = gv.getClassFile().exists();
+            FileUtils.writeString(template.getContent(), gv.getClassFile());
+            if (LOGGER.isLoggable(Level.INFO)) {
+                LOGGER.log(Level.INFO, "Generated version class has been {0}: {1}",
+                        new String[]{updated ? "updated" : "created", gv.getClassFile().toString()});
+            }
+        } catch (IOException e) {
             if (LOGGER.isLoggable(Level.SEVERE)) {
-                LOGGER.severe("Could not create project package directories.");
+                LOGGER.log(Level.SEVERE, "Unable to write the version class file.", e);
             }
         }
     }
@@ -152,13 +159,13 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     @Override
-    public void execute() throws Exception {
+    public void execute() {
         if (generatedVersion.getProject() == null && LOGGER.isLoggable(Level.SEVERE)) {
             LOGGER.severe("A project must be specified.");
         }
 
         var template = buildTemplate(generatedVersion);
-        writeTemplate(template, generatedVersion);
+        writeTemplate(template, generatedVersion.getProject().srcMainJavaDirectory(), generatedVersion);
     }
 
     /**
