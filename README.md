@@ -1,4 +1,4 @@
-# [Bld](https://rife2.com/bld) Extension to Generate Project Version Data
+# [Bld](https://rife2.com/bld) Extension to Generate a Project Version Data Class
 
 
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
