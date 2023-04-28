@@ -28,57 +28,93 @@ import java.io.File;
  */
 @SuppressWarnings("PMD.DataClass")
 public class GeneratedVersion {
-    private String className;
     private File classFile;
+    private String className;
     private String packageName;
     private BaseProject project;
     private String projectName;
     private File template;
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
+    /**
+     * Returns the class file.
+     */
     public File getClassFile() {
         return classFile;
     }
 
-    public void setClassFile(File classFile) {
-        this.classFile = classFile;
+    /**
+     * Returns the class name.
+     */
+    public String getClassName() {
+        return className;
     }
 
+    /**
+     * Returns the package name.
+     */
     public String getPackageName() {
         return packageName;
     }
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
+    /**
+     * Returns the project.
+     */
     public BaseProject getProject() {
         return project;
     }
 
-    public void setProject(BaseProject project) {
-        this.project = project;
-    }
-
+    /**
+     * Returns the project name.
+     */
     public String getProjectName() {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
+    /**
+     * Returns the template.
+     */
     public File getTemplate() {
         return template;
     }
 
+    /**
+     * Sets the class file.
+     */
+    public void setClassFile(File classFile) {
+        this.classFile = classFile;
+    }
+
+    /**
+     * Sets the class name.
+     */
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    /**
+     * Sets the package name.
+     */
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    /**
+     * Sets the project.
+     */
+    public void setProject(BaseProject project) {
+        this.project = project;
+    }
+
+    /**
+     * Sets the project name.
+     */
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    /**
+     * Sets the template file.
+     */
     public void setTemplate(File template) {
         this.template = template;
     }

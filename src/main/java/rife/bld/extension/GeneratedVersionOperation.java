@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements the GeneratedVersionOperation class.
+ * Generates a project version data class.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -112,6 +112,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         return template;
     }
 
+    /**
+     * Writes the project version class in the given directory.
+     */
     public static void writeTemplate(Template template, File directory, GeneratedVersion gv) {
         if (gv.getPackageName() != null) {
             gv.setClassFile(Path.of(directory.getAbsolutePath(),
@@ -151,13 +154,16 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
-     * Sets the class template path
+     * Sets the class template path.
      */
     public GeneratedVersionOperation classTemplate(File template) {
         generatedVersion.setTemplate(template);
         return this;
     }
 
+    /**
+     * Generates a version data class for this project.
+     */
     @Override
     public void execute() {
         if (generatedVersion.getProject() == null && LOGGER.isLoggable(Level.SEVERE)) {

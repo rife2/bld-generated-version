@@ -65,7 +65,7 @@ class GeneratedVersionTest {
     }
 
     @Test
-    void buildTemplateCustomTest() {
+    void testBuildCustomTemplate() {
         var gv = new GeneratedVersion();
         gv.setProject(PROJECT);
         gv.setTemplate(new File(gv.getProject().srcTestResourcesDirectory().getAbsolutePath(),
