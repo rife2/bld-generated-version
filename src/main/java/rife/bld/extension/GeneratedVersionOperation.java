@@ -194,7 +194,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * Sets the project name.
      */
     public GeneratedVersionOperation projectName(String projectName) {
-        generatedVersion.setPackageName(projectName);
+        generatedVersion.setProjectName(projectName);
         return this;
     }
 }
