@@ -71,13 +71,14 @@ class GeneratedVersionTest {
         gv.setTemplate(new File(gv.getProject().srcTestResourcesDirectory().getAbsolutePath(),
                 "version_test.txt"));
         gv.setPackageName("com.example.my");
+        gv.setProjectName("My App");
         gv.setClassName("MyVersion");
 
         var t = GeneratedVersionOperation.buildTemplate(gv);
 
         assertThat(t.getContent()).contains("package com.example.my;").contains("class MyVersion")
                 .contains("MAJOR = 2").contains("MINOR = 1").contains("REVISION = 3").contains("QUALIFIER = \"\"")
-                .contains("private MyVersion");
+                .contains("private MyVersion").contains("PROJECT = \"My App\"");
     }
 
     @Test
