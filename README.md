@@ -60,7 +60,7 @@ You can specified your own template using some or all of the template value tags
 public void genver() throws Exception {
     new GeneratedVersionOperation()
         .fromProject(this)
-        .classTemplate(new File(".", "myversion.txt"))
+        .classTemplate(new File(workDirectory, "myversion.txt"))
         .execute();
 }
 ```

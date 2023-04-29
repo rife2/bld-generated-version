@@ -39,7 +39,7 @@ public class SampleBuild extends Project {
     public void genver() throws Exception {
         new GeneratedVersionOperation()
                 .fromProject(this)
-//                .classTemplate(new File(".", "myversion.txt"))
+//                .classTemplate(new File(workDirectory, "myversion.txt"))
                 .execute();
     }
 }
