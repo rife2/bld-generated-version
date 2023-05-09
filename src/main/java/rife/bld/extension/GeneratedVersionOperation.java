@@ -175,7 +175,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
-     * Sets the project name.
+     * Configure the operation from a {@link BaseProject}.
      */
     public GeneratedVersionOperation fromProject(BaseProject project) {
         generatedVersion.setProject(project);
