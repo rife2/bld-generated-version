@@ -18,15 +18,17 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 0);
+        version = version(0, 9, 1, "SNAPSHOT");
 
         javaRelease = 17;
         downloadSources = true;
         autoDownloadPurge = true;
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
+        var rife2 = version(1,7,0);
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", version(1, 6, 3)));
+                .include(dependency("com.uwyn.rife2", "rife2", rife2))
+                .include(dependency("com.uwyn.rife2", "bld", rife2));
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 3)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 3)))
