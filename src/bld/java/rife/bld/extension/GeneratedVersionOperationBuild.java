@@ -25,7 +25,7 @@ public class GeneratedVersionOperationBuild extends Project {
         autoDownloadPurge = true;
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
-        var rife2 = version(1,7,0);
+        var rife2 = version(1, 7, 0);
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "rife2", rife2))
                 .include(dependency("com.uwyn.rife2", "bld", rife2));

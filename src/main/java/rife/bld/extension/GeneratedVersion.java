@@ -43,45 +43,17 @@ public class GeneratedVersion {
     }
 
     /**
-     * Returns the class name.
-     */
-    public String getClassName() {
-        return className;
-    }
-
-    /**
-     * Returns the package name.
-     */
-    public String getPackageName() {
-        return packageName;
-    }
-
-    /**
-     * Returns the project.
-     */
-    public BaseProject getProject() {
-        return project;
-    }
-
-    /**
-     * Returns the project name.
-     */
-    public String getProjectName() {
-        return projectName;
-    }
-
-    /**
-     * Returns the template.
-     */
-    public File getTemplate() {
-        return template;
-    }
-
-    /**
      * Sets the class file.
      */
     public void setClassFile(File classFile) {
         this.classFile = classFile;
+    }
+
+    /**
+     * Returns the class name.
+     */
+    public String getClassName() {
+        return className;
     }
 
     /**
@@ -92,10 +64,24 @@ public class GeneratedVersion {
     }
 
     /**
+     * Returns the package name.
+     */
+    public String getPackageName() {
+        return packageName;
+    }
+
+    /**
      * Sets the package name.
      */
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    /**
+     * Returns the project.
+     */
+    public BaseProject getProject() {
+        return project;
     }
 
     /**
@@ -106,10 +92,24 @@ public class GeneratedVersion {
     }
 
     /**
+     * Returns the project name.
+     */
+    public String getProjectName() {
+        return projectName;
+    }
+
+    /**
      * Sets the project name.
      */
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    /**
+     * Returns the template.
+     */
+    public File getTemplate() {
+        return template;
     }
 
     /**

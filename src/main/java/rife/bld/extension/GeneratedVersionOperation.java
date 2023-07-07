@@ -60,7 +60,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         if (gv.getTemplate() == null) {
             template = TemplateFactory.TXT.get("version.txt");
         } else {
-            var files = new ResourceFinderDirectories(new File[]{gv.getTemplate().getParentFile()});
+            var files = new ResourceFinderDirectories(gv.getTemplate().getParentFile());
             template = new TemplateFactory(TemplateConfig.TXT, "txtFiles", TemplateFactory.TXT)
                     .setResourceFinder(files).get(gv.getTemplate().getName());
         }
@@ -135,8 +135,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
             var updated = gv.getClassFile().exists();
             FileUtils.writeString(template.getContent(), gv.getClassFile());
             if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER.log(Level.INFO, "Generated version class has been {0}: {1}",
-                        new String[]{updated ? "updated" : "created", gv.getClassFile().toString()});
+                LOGGER.log(Level.INFO, "Generated version class has been {0} to {1}: {2}",
+                        new String[]{updated ? "updated" : "created", gv.getProject().version().toString(),
+                                gv.getClassFile().toString()});
             }
         } catch (IOException e) {
             if (LOGGER.isLoggable(Level.SEVERE)) {
