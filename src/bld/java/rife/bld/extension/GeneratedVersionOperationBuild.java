@@ -6,6 +6,7 @@ import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
+import java.io.IOException;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.*;
@@ -30,8 +31,8 @@ public class GeneratedVersionOperationBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "rife2", rife2))
                 .include(dependency("com.uwyn.rife2", "bld", rife2));
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 3)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 3)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 0)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         precompileOperation()
@@ -63,6 +64,13 @@ public class GeneratedVersionOperationBuild extends Project {
 
     public static void main(String[] args) {
         new GeneratedVersionOperationBuild().start(args);
+    }
+
+    @BuildCommand(summary = "Generates JaCoCo Reports")
+    public void jacoco() throws IOException {
+        new JacocoReportOperation()
+                .fromProject(this)
+                .execute();
     }
 
     @BuildCommand(summary = "Runs PMD analysis")
