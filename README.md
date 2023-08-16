@@ -7,7 +7,9 @@
 [![Snapshot](https://flat.badgen.net/maven/v/metadata-url/repo.rife2.com/snapshots/com/uwyn/rife2/bld-generated-version/maven-metadata.xml?label=snapshot)](https://repo.rife2.com/#/snapshots/com/uwyn/rife2/bld-generated-version)
 [![GitHub CI](https://github.com/rife2/bld-generated-version/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-generated-version/actions/workflows/bld.yml)
 
-To automatically create a generated version class using the default template in your project on compile:
+To install, please refer to the [extensions documentation](https://github.com/rife2/bld/wiki/Extensions).
+
+To automatically create a generated version class using the default template in your project on compile, add the following to your build file:
 ```java
 @Override
 public void compile() throws Exception {
