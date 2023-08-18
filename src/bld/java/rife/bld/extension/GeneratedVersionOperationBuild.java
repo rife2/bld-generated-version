@@ -29,7 +29,7 @@ public class GeneratedVersionOperationBuild extends Project {
         var rife2 = version(1, 7, 0);
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "rife2", rife2))
-                .include(dependency("com.uwyn.rife2", "bld", rife2));
+                .include(dependency("com.uwyn.rife2", "bld", version(1, 7, 1)));
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 0)))
