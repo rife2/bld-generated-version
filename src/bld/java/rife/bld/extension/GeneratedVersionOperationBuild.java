@@ -26,9 +26,7 @@ public class GeneratedVersionOperationBuild extends Project {
         autoDownloadPurge = true;
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
-        var rife2 = version(1, 7, 0);
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", rife2))
                 .include(dependency("com.uwyn.rife2", "bld", version(1, 7, 2)));
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
