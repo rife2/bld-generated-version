@@ -1,4 +1,4 @@
-# [Bld](https://rife2.com/bld) Extension to Generate a Project Version Data Class
+# [bld](https://rife2.com/bld) Extension to Generate a Project Version Data Class
 
 
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
