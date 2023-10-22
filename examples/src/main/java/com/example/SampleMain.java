@@ -15,7 +15,7 @@ public class SampleMain {
         System.out.println("    Major:          " + GeneratedVersion.MAJOR);
         System.out.println("    Minor:          " + GeneratedVersion.MINOR);
         System.out.println("    Revision:       " + GeneratedVersion.REVISION);
-        System.out.println("    Qualifier::     " + GeneratedVersion.QUALIFIER);
+        System.out.println("    Qualifier:      " + GeneratedVersion.QUALIFIER);
 
         System.out.println("-----------------------------------------------------");
     }
