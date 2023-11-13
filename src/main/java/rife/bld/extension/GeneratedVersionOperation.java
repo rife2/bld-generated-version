@@ -115,12 +115,13 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     /**
      * Writes the project version class in the given directory.
      */
-    public static void writeTemplate(Template template, File directory, GeneratedVersion gv) {
+    public static void writeTemplate(Template template, GeneratedVersion gv) {
         if (gv.getPackageName() != null) {
-            gv.setClassFile(Path.of(directory.getAbsolutePath(),
-                    gv.getPackageName().replace(".", File.separator), gv.getClassName() + ".java").toFile());
+            gv.setClassFile(Path.of(gv.getDirectory().getAbsolutePath(),
+                    gv.getPackageName().replace(".", File.separator), gv.getClassName()
+                            + gv.getExtension()).toFile());
         } else {
-            gv.setClassFile(Path.of(directory.getAbsolutePath(), gv.getClassName() + ".java").toFile());
+            gv.setClassFile(Path.of(gv.getDirectory().getAbsolutePath(), gv.getClassName() + ".java").toFile());
         }
 
         if (!gv.getClassFile().getParentFile().exists()) {
@@ -135,8 +136,8 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
             var updated = gv.getClassFile().exists();
             FileUtils.writeString(template.getContent(), gv.getClassFile());
             if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER.log(Level.INFO, "Generated version class has been {0} to {1}: {2}",
-                        new String[]{updated ? "updated" : "created", gv.getProject().version().toString(),
+                LOGGER.log(Level.INFO, "Generated version ({0}) class has been {1}: {2}",
+                        new String[]{gv.getProject().version().toString(), updated ? "updated" : "created",
                                 gv.getClassFile().toString()});
             }
         } catch (IOException e) {
@@ -163,6 +164,14 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
+     * Sets the destination directory.
+     */
+    public GeneratedVersionOperation directory(File directory) {
+        generatedVersion.setDirectory(directory);
+        return this;
+    }
+
+    /**
      * Generates a version data class for this project.
      */
     @Override
@@ -172,7 +181,15 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         }
 
         var template = buildTemplate(generatedVersion);
-        writeTemplate(template, generatedVersion.getProject().srcMainJavaDirectory(), generatedVersion);
+        writeTemplate(template, generatedVersion);
+    }
+
+    /**
+     * Sets the file extension. (e.g. {@code .java})
+     */
+    public GeneratedVersionOperation extension(String extension) {
+        generatedVersion.setExtension(extension);
+        return this;
     }
 
     /**
@@ -180,6 +197,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      */
     public GeneratedVersionOperation fromProject(BaseProject project) {
         generatedVersion.setProject(project);
+        generatedVersion.setDirectory(project.srcMainJavaDirectory());
         return this;
     }
 

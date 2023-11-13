@@ -18,6 +18,7 @@ package rife.bld.extension;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
+import rife.bld.operations.JarOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
@@ -35,7 +36,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 2);
+        version = version(0, 9, 3, "SNAPSHOT");
 
         javaRelease = 17;
         downloadSources = true;
@@ -45,8 +46,8 @@ public class GeneratedVersionOperationBuild extends Project {
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld", version(1, 7, 5)));
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 0)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 1)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 1)))
                 .include(dependency("org.assertj", "assertj-core", version(3, 24, 2)));
 
         precompileOperation()
@@ -54,6 +55,7 @@ public class GeneratedVersionOperationBuild extends Project {
 
         javadocOperation()
                 .javadocOptions()
+                .author()
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/bld/")
                 .link("https://rife2.github.io/rife2/")

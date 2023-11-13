@@ -75,10 +75,21 @@ class GeneratedVersionTest {
         gv.setClassName("MyVersion");
 
         var t = GeneratedVersionOperation.buildTemplate(gv);
-
-        assertThat(t.getContent()).contains("package com.example.my;").contains("class MyVersion")
-                .contains("MAJOR = 2").contains("MINOR = 1").contains("REVISION = 3").contains("QUALIFIER = \"\"")
-                .contains("private MyVersion").contains("PROJECT = \"My App\"");
+        assertThat(t.getContent()).isEqualTo("""
+                package com.example.my;
+                                
+                public final class MyVersion {
+                    public static final int PROJECT = "My App";
+                    public static final int MAJOR = 2;
+                    public static final int MINOR = 1;
+                    public static final int REVISION = 3;
+                    public static final String QUALIFIER = "";
+                                
+                    private MyVersion() {
+                        // no-op
+                    }
+                }
+                """);
     }
 
     @Test
@@ -101,13 +112,15 @@ class GeneratedVersionTest {
 
     @Test
     void testWriteTemplate() throws IOException {
+        var tmpDir = Files.createTempDirectory("bldGeneratedVersion").toFile();
         var gv = new GeneratedVersion();
+
         gv.setProject(PROJECT);
+        gv.setDirectory(tmpDir);
+
         var t = GeneratedVersionOperation.buildTemplate(gv);
 
-        var tmpDir = Files.createTempDirectory("bldGeneratedVersion").toFile();
-
-        GeneratedVersionOperation.writeTemplate(t, tmpDir, gv);
+        GeneratedVersionOperation.writeTemplate(t, gv);
 
         assertThat(gv.getClassFile()).exists();
 

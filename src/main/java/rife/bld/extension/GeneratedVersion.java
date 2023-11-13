@@ -30,6 +30,8 @@ import java.io.File;
 public class GeneratedVersion {
     private File classFile;
     private String className;
+    private File directory;
+    private String extension = ".java";
     private String packageName;
     private BaseProject project;
     private String projectName;
@@ -43,13 +45,6 @@ public class GeneratedVersion {
     }
 
     /**
-     * Sets the class file.
-     */
-    public void setClassFile(File classFile) {
-        this.classFile = classFile;
-    }
-
-    /**
      * Returns the class name.
      */
     public String getClassName() {
@@ -57,10 +52,17 @@ public class GeneratedVersion {
     }
 
     /**
-     * Sets the class name.
+     * Returns the destination directory.
      */
-    public void setClassName(String className) {
-        this.className = className;
+    public File getDirectory() {
+        return directory;
+    }
+
+    /**
+     * Returns the file extension.
+     */
+    public String getExtension() {
+        return extension;
     }
 
     /**
@@ -71,24 +73,10 @@ public class GeneratedVersion {
     }
 
     /**
-     * Sets the package name.
-     */
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    /**
      * Returns the project.
      */
     public BaseProject getProject() {
         return project;
-    }
-
-    /**
-     * Sets the project.
-     */
-    public void setProject(BaseProject project) {
-        this.project = project;
     }
 
     /**
@@ -99,17 +87,59 @@ public class GeneratedVersion {
     }
 
     /**
-     * Sets the project name.
-     */
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    /**
      * Returns the template.
      */
     public File getTemplate() {
         return template;
+    }
+
+    /**
+     * Sets the class file.
+     */
+    public void setClassFile(File classFile) {
+        this.classFile = classFile;
+    }
+
+    /**
+     * Sets the class name.
+     */
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    /**
+     * Set the destination directory.
+     */
+    public void setDirectory(File directory) {
+        this.directory = directory;
+    }
+
+    /**
+     * Sets the file extension. (e.g. {@code .java}
+     */
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    /**
+     * Sets the package name.
+     */
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    /**
+     * Sets the project.
+     */
+    public void setProject(BaseProject project) {
+        this.project = project;
+    }
+
+    /**
+     * Sets the project name.
+     */
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     /**
