@@ -115,7 +115,7 @@ public class GeneratedVersion {
     }
 
     /**
-     * Sets the file extension. (e.g. {@code .java}
+     * Sets the file extension. (Default is: {@code .java})
      */
     public void setExtension(String extension) {
         this.extension = extension;

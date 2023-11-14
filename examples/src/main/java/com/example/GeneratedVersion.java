@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public final class GeneratedVersion {
     public static final String PROJECT = "Sample";
-    public static final Date BUILD_DATE = new Date(1698009833587L);
+    public static final Date BUILD_DATE = new Date(1699921996786L);
     public static final int MAJOR = 1;
     public static final int MINOR = 0;
     public static final int REVISION = 1;

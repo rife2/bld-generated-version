@@ -185,7 +185,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
-     * Sets the file extension. (e.g. {@code .java})
+     * Sets the file extension. (Default is: {@code .java})
      */
     public GeneratedVersionOperation extension(String extension) {
         generatedVersion.setExtension(extension);

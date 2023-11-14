@@ -18,7 +18,6 @@ package rife.bld.extension;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
-import rife.bld.operations.JarOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
@@ -26,7 +25,8 @@ import rife.bld.publish.PublishScm;
 import java.io.IOException;
 import java.util.List;
 
-import static rife.bld.dependencies.Repository.*;
+import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
+import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
 import static rife.bld.dependencies.Scope.compile;
 import static rife.bld.dependencies.Scope.test;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
@@ -36,7 +36,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 3, "SNAPSHOT");
+        version = version(0, 9, 3);
 
         javaRelease = 17;
         downloadSources = true;
@@ -91,7 +91,7 @@ public class GeneratedVersionOperationBuild extends Project {
     }
 
     @BuildCommand(summary = "Runs PMD analysis")
-    public void pmd() throws Exception {
+    public void pmd() {
         new PmdOperation()
                 .fromProject(this)
                 .failOnViolation(true)
