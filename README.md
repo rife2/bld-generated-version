@@ -26,7 +26,7 @@ public void genver() throws Exception {
 }
 ```
 
-```text
+```console
 ./bld compile
 ```
 

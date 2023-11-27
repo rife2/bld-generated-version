@@ -1,5 +1,5 @@
 # Compile and Run Example
 
-```plain
+```console
 ./bld compile run
 ```

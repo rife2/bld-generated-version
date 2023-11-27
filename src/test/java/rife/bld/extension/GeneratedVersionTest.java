@@ -112,7 +112,8 @@ class GeneratedVersionTest {
 
     @Test
     void testWriteTemplate() throws IOException {
-        var tmpDir = Files.createTempDirectory("bldGeneratedVersion").toFile();
+        var tmpDir = Files.createTempDirectory("bld-generated-version-").toFile();
+        tmpDir.deleteOnExit();
         var gv = new GeneratedVersion();
 
         gv.setProject(PROJECT);

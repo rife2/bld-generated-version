@@ -36,7 +36,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 3);
+        version = version(0, 9, 4, "SNAPSHOT");
 
         javaRelease = 17;
         downloadSources = true;
@@ -68,13 +68,24 @@ public class GeneratedVersionOperationBuild extends Project {
                 .artifactId("bld-generated-version")
                 .description("bld Extension to Generate Project Version Data")
                 .url("https://github.com/rife2/generated-version")
-                .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
-                        .url("https://erik.thauvin.net/"))
-                .license(new PublishLicense().name("The Apache License, Version 2.0")
-                        .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-                .scm(new PublishScm().connection("scm:git:https://github.com/rife2/generated-version.git")
-                        .developerConnection("scm:git:git@github.com:rife2/generated-version.git")
-                        .url("https://github.com/rife2/generated-version"))
+                .developer(
+                        new PublishDeveloper()
+                                .id("ethauvin")
+                                .name("Erik C. Thauvin")
+                                .email("erik@thauvin.net")
+                                .url("https://erik.thauvin.net/")
+                )
+                .license(
+                        new PublishLicense()
+                                .name("The Apache License, Version 2.0")
+                                .url("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                )
+                .scm(
+                        new PublishScm()
+                                .connection("scm:git:https://github.com/rife2/generated-version.git")
+                                .developerConnection("scm:git:git@github.com:rife2/generated-version.git")
+                                .url("https://github.com/rife2/generated-version")
+                )
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
     }

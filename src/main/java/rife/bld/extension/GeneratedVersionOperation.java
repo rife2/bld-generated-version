@@ -53,6 +53,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Builds the template based on the {@link GeneratedVersion} data.
+     *
+     * @param gv the generated version
+     * @return the template
      */
     public static Template buildTemplate(GeneratedVersion gv) {
         Template template;
@@ -114,6 +117,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Writes the project version class in the given directory.
+     *
+     * @param template the template
+     * @param gv       the generated version
      */
     public static void writeTemplate(Template template, GeneratedVersion gv) {
         if (gv.getPackageName() != null) {
@@ -149,6 +155,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the class name.
+     *
+     * @param className the class name
+     * @return this operation instance
      */
     public GeneratedVersionOperation className(String className) {
         generatedVersion.setClassName(className);
@@ -157,6 +166,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
      */
     public GeneratedVersionOperation classTemplate(File template) {
         generatedVersion.setTemplate(template);
@@ -165,6 +177,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
      */
     public GeneratedVersionOperation directory(File directory) {
         generatedVersion.setDirectory(directory);
@@ -186,6 +201,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the file extension. (Default is: {@code .java})
+     *
+     * @param extension the file extension
+     * @return this operation instance
      */
     public GeneratedVersionOperation extension(String extension) {
         generatedVersion.setExtension(extension);
@@ -194,6 +212,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Configure the operation from a {@link BaseProject}.
+     *
+     * @param project the project
+     * @return this operation instance
      */
     public GeneratedVersionOperation fromProject(BaseProject project) {
         generatedVersion.setProject(project);
@@ -203,6 +224,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the package name.
+     *
+     * @param packageName the package name
+     * @return this operation instance
      */
     public GeneratedVersionOperation packageName(String packageName) {
         generatedVersion.setPackageName(packageName);
@@ -211,6 +235,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Sets the project name.
+     *
+     * @param projectName the project name
+     * @return this operation instance
      */
     public GeneratedVersionOperation projectName(String projectName) {
         generatedVersion.setProjectName(projectName);
