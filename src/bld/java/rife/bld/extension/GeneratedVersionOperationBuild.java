@@ -36,7 +36,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 4, "SNAPSHOT");
+        version = version(0, 9, 4);
 
         javaRelease = 17;
         downloadSources = true;
