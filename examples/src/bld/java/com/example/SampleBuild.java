@@ -25,11 +25,13 @@ public class SampleBuild extends Project {
         mainClass = "com.example.SampleMain";
         version = version(1, 0, 1, "rc1");
 
+        autoDownloadPurge = true;
         downloadSources = true;
+
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 1)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 1)));
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 2)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 2)));
     }
 
     public static void main(String[] args) {
