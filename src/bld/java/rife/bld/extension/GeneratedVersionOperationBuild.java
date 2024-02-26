@@ -36,7 +36,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 5, "SNAPSHOT");
+        version = version(0, 9, 5);
 
         javaRelease = 17;
         downloadSources = true;
@@ -44,7 +44,7 @@ public class GeneratedVersionOperationBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(1, 8, 0)));
+                .include(dependency("com.uwyn.rife2", "bld", version(1, 9, 0)));
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 2)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 2)))
