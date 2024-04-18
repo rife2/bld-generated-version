@@ -25,6 +25,8 @@ public class SampleBuild extends Project {
         mainClass = "com.example.SampleMain";
         version = version(1, 0, 1, "rc1");
 
+        javaRelease = 17;
+
         autoDownloadPurge = true;
         downloadSources = true;
 
