@@ -144,7 +144,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
             if (LOGGER.isLoggable(Level.INFO)) {
                 LOGGER.log(Level.INFO, "Generated version ({0}) class has been {1}: {2}",
                         new String[]{gv.getProject().version().toString(), updated ? "updated" : "created",
-                                "file://" + gv.getClassFile().toString()});
+                                "file://" + gv.getClassFile().toURI().getPath()});
             }
         } catch (IOException e) {
             if (LOGGER.isLoggable(Level.SEVERE)) {
