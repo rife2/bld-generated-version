@@ -13,10 +13,6 @@ import static rife.bld.dependencies.Scope.test;
 
 /**
  * Example build.
- *
- * <ul style="list-style-type:none">
- *     <li>./bld compile run</li>
- * </ul>
  */
 public class SampleBuild extends Project {
     public SampleBuild() {
