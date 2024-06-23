@@ -36,11 +36,13 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 6);
+        version = version(0, 9, 7, "SNAPSHOT");
 
         javaRelease = 17;
+
         downloadSources = true;
         autoDownloadPurge = true;
+
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
         scope(compile)

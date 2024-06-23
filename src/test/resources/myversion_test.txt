@@ -1,0 +1,11 @@
+public final class {{v className/}} {
+    public static final int PROJECT = "{{v project/}}";
+    public static final int MAJOR = {{v major/}};
+    public static final int MINOR = {{v minor/}};
+    public static final int REVISION = {{v revision/}};
+    public static final String QUALIFIER = "{{v qualifier/}}";
+
+    private {{v className/}}() {
+        // no-op
+    }
+}

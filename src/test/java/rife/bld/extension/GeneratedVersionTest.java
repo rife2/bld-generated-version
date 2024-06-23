@@ -75,6 +75,7 @@ class GeneratedVersionTest {
         gv.setClassName("MyVersion");
 
         var t = GeneratedVersionOperation.buildTemplate(gv);
+        //noinspection TrailingWhitespacesInTextBlock
         assertThat(t.getContent()).isEqualTo("""
                 package com.example.my;
                                 
@@ -108,6 +109,25 @@ class GeneratedVersionTest {
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
                 .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("VERSION = \"2.1.3\"")
                 .contains("private GeneratedVersion");
+    }
+
+    @Test
+    void testExecute() throws IOException {
+        var tmpDir = Files.createTempDirectory("bld-generated-version-").toFile();
+        tmpDir.deleteOnExit();
+        
+        new GeneratedVersionOperation()
+                .fromProject(PROJECT)
+                .directory(tmpDir.getAbsolutePath())
+                .extension(".java")
+                .classTemplate("src/test/resources/myversion_test.txt")
+                .packageName("")
+                .className("MyVersion")
+                .execute();
+
+        deleteOnExit(tmpDir);
+
+        assertThat(new File(tmpDir, "MyVersion.java")).exists();
     }
 
     @Test

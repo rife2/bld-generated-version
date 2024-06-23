@@ -176,6 +176,16 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
+     * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation classTemplate(String template) {
+        return classTemplate(new File(template));
+    }
+
+    /**
      * Sets the destination directory.
      *
      * @param directory the destination directory
@@ -184,6 +194,16 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     public GeneratedVersionOperation directory(File directory) {
         generatedVersion.setDirectory(directory);
         return this;
+    }
+
+    /**
+     * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation directory(String directory) {
+        return directory(new File(directory));
     }
 
     /**
