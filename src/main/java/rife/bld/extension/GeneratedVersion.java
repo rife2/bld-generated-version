@@ -17,8 +17,16 @@
 package rife.bld.extension;
 
 import rife.bld.BaseProject;
+import rife.resources.ResourceFinderDirectories;
+import rife.template.Template;
+import rife.template.TemplateConfig;
+import rife.template.TemplateFactory;
+import rife.tools.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * GeneratedVersion data class.
@@ -26,16 +34,86 @@ import java.io.File;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@SuppressWarnings("PMD.DataClass")
 public class GeneratedVersion {
-    private File classFile;
-    private String className;
-    private File directory;
-    private String extension = ".java";
-    private String packageName;
-    private BaseProject project;
-    private String projectName;
-    private File template;
+    private static final String CLASSNAME = "className";
+    private static final String EPOCH = "epoch";
+    private static final String MAJOR = "major";
+    private static final String MINOR = "minor";
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String PROJECT = "project";
+    private static final String QUALIFIER = "qualifier";
+    private static final String REVISION = "revision";
+    private static final String VERSION = "version";
+    private File classFile_;
+    private String className_;
+    private File directory_;
+    private String extension_ = ".java";
+    private String packageName_;
+    private String projectName_;
+    private BaseProject project_;
+    private File template_;
+
+    /**
+     * Builds the template based on the {@link GeneratedVersion} data.
+     *
+     * @return the template
+     */
+    public Template buildTemplate() {
+        Template template;
+        var version = project_.version();
+        if (template_ == null) {
+            template = TemplateFactory.TXT.get("version.txt");
+        } else {
+            var files = new ResourceFinderDirectories(template_.getParentFile());
+            template = new TemplateFactory(TemplateConfig.TXT, "txtFiles", TemplateFactory.TXT)
+                    .setResourceFinder(files).get(template_.getName());
+        }
+
+        if (packageName_ == null) {
+            packageName_ = project_.pkg();
+        }
+
+        if (template.hasValueId(PACKAGE_NAME)) {
+            template.setValue(PACKAGE_NAME, packageName_);
+        }
+
+        if (template.hasValueId(CLASSNAME)) {
+            template.setValue(CLASSNAME, Objects.requireNonNullElse(className_, "GeneratedVersion"));
+        }
+
+        if (template.hasValueId(PROJECT)) {
+            if (projectName_ == null) {
+                projectName_ = project_.name();
+            }
+            template.setValue(PROJECT, projectName_);
+        }
+
+        if (template.hasValueId(EPOCH)) {
+            template.setValue(EPOCH, System.currentTimeMillis());
+        }
+
+        if (template.hasValueId(VERSION)) {
+            template.setValue(VERSION, version.toString());
+        }
+
+        if (template.hasValueId(MAJOR)) {
+            template.setValue(MAJOR, version.majorInt());
+        }
+
+        if (template.hasValueId(MINOR)) {
+            template.setValue(MINOR, version.minorInt());
+        }
+
+        if (template.hasValueId(REVISION)) {
+            template.setValue(REVISION, version.revisionInt());
+        }
+
+        if (template.hasValueId(QUALIFIER)) {
+            template.setValue(QUALIFIER, version.qualifier());
+        }
+
+        return template;
+    }
 
     /**
      * Returns the class file.
@@ -43,7 +121,7 @@ public class GeneratedVersion {
      * @return the class file
      */
     public File getClassFile() {
-        return classFile;
+        return classFile_;
     }
 
     /**
@@ -52,7 +130,7 @@ public class GeneratedVersion {
      * @return the class name
      */
     public String getClassName() {
-        return className;
+        return className_;
     }
 
     /**
@@ -61,7 +139,7 @@ public class GeneratedVersion {
      * @return the destination directory
      */
     public File getDirectory() {
-        return directory;
+        return directory_;
     }
 
     /**
@@ -70,7 +148,7 @@ public class GeneratedVersion {
      * @return the file extension
      */
     public String getExtension() {
-        return extension;
+        return extension_;
     }
 
     /**
@@ -79,7 +157,7 @@ public class GeneratedVersion {
      * @return the package name
      */
     public String getPackageName() {
-        return packageName;
+        return packageName_;
     }
 
     /**
@@ -88,7 +166,7 @@ public class GeneratedVersion {
      * @return the project
      */
     public BaseProject getProject() {
-        return project;
+        return project_;
     }
 
     /**
@@ -97,7 +175,7 @@ public class GeneratedVersion {
      * @return the project name
      */
     public String getProjectName() {
-        return projectName;
+        return projectName_;
     }
 
     /**
@@ -106,16 +184,7 @@ public class GeneratedVersion {
      * @return the template
      */
     public File getTemplate() {
-        return template;
-    }
-
-    /**
-     * Sets the class file.
-     *
-     * @param classFile the class file
-     */
-    public void setClassFile(File classFile) {
-        this.classFile = classFile;
+        return template_;
     }
 
     /**
@@ -124,7 +193,7 @@ public class GeneratedVersion {
      * @param className the class name
      */
     public void setClassName(String className) {
-        this.className = className;
+        this.className_ = className;
     }
 
     /**
@@ -133,7 +202,7 @@ public class GeneratedVersion {
      * @param directory the destination directory
      */
     public void setDirectory(File directory) {
-        this.directory = directory;
+        this.directory_ = directory;
     }
 
     /**
@@ -142,7 +211,7 @@ public class GeneratedVersion {
      * @param extension the file extension
      */
     public void setExtension(String extension) {
-        this.extension = extension;
+        this.extension_ = extension;
     }
 
     /**
@@ -151,7 +220,7 @@ public class GeneratedVersion {
      * @param packageName the package name
      */
     public void setPackageName(String packageName) {
-        this.packageName = packageName;
+        this.packageName_ = packageName;
     }
 
     /**
@@ -160,7 +229,7 @@ public class GeneratedVersion {
      * @param project the project
      */
     public void setProject(BaseProject project) {
-        this.project = project;
+        this.project_ = project;
     }
 
     /**
@@ -169,7 +238,7 @@ public class GeneratedVersion {
      * @param projectName the project name
      */
     public void setProjectName(String projectName) {
-        this.projectName = projectName;
+        this.projectName_ = projectName;
     }
 
     /**
@@ -178,6 +247,31 @@ public class GeneratedVersion {
      * @param template the template
      */
     public void setTemplate(File template) {
-        this.template = template;
+        this.template_ = template;
+    }
+
+    /**
+     * Writes the project version class in the given directory.
+     */
+    public void writeTemplate(Template template) throws IOException {
+        if (packageName_ != null) {
+            classFile_ = Path.of(directory_.getAbsolutePath(), packageName_.replace(".", File.separator),
+                    className_ + extension_).toFile();
+        } else {
+            classFile_ = new File(directory_, className_ + ".java");
+        }
+
+        if (!classFile_.getParentFile().exists()) {
+            var dirs = classFile_.getParentFile().mkdirs();
+            if (!dirs && !classFile_.getParentFile().exists()) {
+                throw new IOException("Could not create project package directories: " + classFile_.getParent());
+            }
+        }
+
+        try {
+            FileUtils.writeString(template.getContent(), classFile_);
+        } catch (IOException e) {
+            throw new IOException("Unable to write the version class file: " + e.getMessage(), e);
+        }
     }
 }

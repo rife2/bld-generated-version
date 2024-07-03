@@ -19,16 +19,9 @@ package rife.bld.extension;
 
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
-import rife.resources.ResourceFinderDirectories;
-import rife.template.Template;
-import rife.template.TemplateConfig;
-import rife.template.TemplateFactory;
-import rife.tools.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,119 +32,8 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersionOperation> {
-    private static final String CLASSNAME = "className";
-    private static final String EPOCH = "epoch";
     private static final Logger LOGGER = Logger.getLogger(GeneratedVersionOperation.class.getName());
-    private static final String MAJOR = "major";
-    private static final String MINOR = "minor";
-    private static final String PACKAGE_NAME = "packageName";
-    private static final String PROJECT = "project";
-    private static final String QUALIFIER = "qualifier";
-    private static final String REVISION = "revision";
-    private static final String VERSION = "version";
-    private final GeneratedVersion generatedVersion = new GeneratedVersion();
-
-    /**
-     * Builds the template based on the {@link GeneratedVersion} data.
-     *
-     * @param gv the generated version
-     * @return the template
-     */
-    public static Template buildTemplate(GeneratedVersion gv) {
-        Template template;
-        var version = gv.getProject().version();
-        if (gv.getTemplate() == null) {
-            template = TemplateFactory.TXT.get("version.txt");
-        } else {
-            var files = new ResourceFinderDirectories(gv.getTemplate().getParentFile());
-            template = new TemplateFactory(TemplateConfig.TXT, "txtFiles", TemplateFactory.TXT)
-                    .setResourceFinder(files).get(gv.getTemplate().getName());
-        }
-
-        if (gv.getPackageName() == null) {
-            gv.setPackageName(gv.getProject().pkg());
-        }
-
-        if (template.hasValueId(PACKAGE_NAME)) {
-            template.setValue(PACKAGE_NAME, gv.getPackageName());
-        }
-
-        gv.setClassName(Objects.requireNonNullElse(gv.getClassName(), "GeneratedVersion"));
-        if (template.hasValueId(CLASSNAME)) {
-            template.setValue(CLASSNAME, gv.getClassName());
-        }
-
-        if (template.hasValueId(PROJECT)) {
-            if (gv.getProjectName() == null) {
-                gv.setProjectName(gv.getProject().name());
-            }
-            template.setValue(PROJECT, gv.getProjectName());
-        }
-
-        if (template.hasValueId(EPOCH)) {
-            template.setValue(EPOCH, System.currentTimeMillis());
-        }
-
-        if (template.hasValueId(VERSION)) {
-            template.setValue(VERSION, version.toString());
-        }
-
-        if (template.hasValueId(MAJOR)) {
-            template.setValue(MAJOR, version.majorInt());
-        }
-
-        if (template.hasValueId(MINOR)) {
-            template.setValue(MINOR, version.minorInt());
-        }
-
-        if (template.hasValueId(REVISION)) {
-            template.setValue(REVISION, version.revisionInt());
-        }
-
-        if (template.hasValueId(QUALIFIER)) {
-            template.setValue(QUALIFIER, version.qualifier());
-        }
-
-        return template;
-    }
-
-    /**
-     * Writes the project version class in the given directory.
-     *
-     * @param template the template
-     * @param gv       the generated version
-     */
-    public static void writeTemplate(Template template, GeneratedVersion gv) {
-        if (gv.getPackageName() != null) {
-            gv.setClassFile(Path.of(gv.getDirectory().getAbsolutePath(),
-                    gv.getPackageName().replace(".", File.separator), gv.getClassName()
-                            + gv.getExtension()).toFile());
-        } else {
-            gv.setClassFile(Path.of(gv.getDirectory().getAbsolutePath(), gv.getClassName() + ".java").toFile());
-        }
-
-        if (!gv.getClassFile().getParentFile().exists()) {
-            var mkdirs = gv.getClassFile().getParentFile().mkdirs();
-            if (!mkdirs && !gv.getClassFile().getParentFile().exists() && LOGGER.isLoggable(Level.SEVERE)) {
-                LOGGER.log(Level.SEVERE, "Could not create project package directories: {0}",
-                        gv.getClassFile().getParent());
-            }
-        }
-
-        try {
-            var updated = gv.getClassFile().exists();
-            FileUtils.writeString(template.getContent(), gv.getClassFile());
-            if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER.log(Level.INFO, "Generated version ({0}) class has been {1}: {2}",
-                        new String[]{gv.getProject().version().toString(), updated ? "updated" : "created",
-                                "file://" + gv.getClassFile().toURI().getPath()});
-            }
-        } catch (IOException e) {
-            if (LOGGER.isLoggable(Level.SEVERE)) {
-                LOGGER.log(Level.SEVERE, "Unable to write the version class file.", e);
-            }
-        }
-    }
+    private final GeneratedVersion generatedVersion_ = new GeneratedVersion();
 
     /**
      * Sets the class name.
@@ -160,7 +42,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation className(String className) {
-        generatedVersion.setClassName(className);
+        generatedVersion_.setClassName(className);
         return this;
     }
 
@@ -171,7 +53,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation classTemplate(File template) {
-        generatedVersion.setTemplate(template);
+        generatedVersion_.setTemplate(template);
         return this;
     }
 
@@ -192,7 +74,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation directory(File directory) {
-        generatedVersion.setDirectory(directory);
+        generatedVersion_.setDirectory(directory);
         return this;
     }
 
@@ -214,9 +96,6 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         if (generatedVersion.getProject() == null && LOGGER.isLoggable(Level.SEVERE)) {
             LOGGER.severe("A project must be specified.");
         }
-
-        var template = buildTemplate(generatedVersion);
-        writeTemplate(template, generatedVersion);
     }
 
     /**
@@ -226,7 +105,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation extension(String extension) {
-        generatedVersion.setExtension(extension);
+        generatedVersion_.setExtension(extension);
         return this;
     }
 
@@ -237,8 +116,8 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation fromProject(BaseProject project) {
-        generatedVersion.setProject(project);
-        generatedVersion.setDirectory(project.srcMainJavaDirectory());
+        generatedVersion_.setProject(project);
+        generatedVersion_.setDirectory(project.srcMainJavaDirectory());
         return this;
     }
 
@@ -249,7 +128,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation packageName(String packageName) {
-        generatedVersion.setPackageName(packageName);
+        generatedVersion_.setPackageName(packageName);
         return this;
     }
 
@@ -260,7 +139,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation projectName(String projectName) {
-        generatedVersion.setProjectName(projectName);
+        generatedVersion_.setProjectName(projectName);
         return this;
     }
 }
