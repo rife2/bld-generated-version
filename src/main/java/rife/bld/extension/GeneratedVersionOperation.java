@@ -19,9 +19,9 @@ package rife.bld.extension;
 
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
+import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,9 +92,28 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * Generates a version data class for this project.
      */
     @Override
-    public void execute() {
-        if (generatedVersion.getProject() == null && LOGGER.isLoggable(Level.SEVERE)) {
-            LOGGER.severe("A project must be specified.");
+    @SuppressWarnings("PMD.PreserveStackTrace")
+    public void execute() throws Exception {
+        if (generatedVersion_.getProject() == null) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.severe("A project must be specified.");
+            }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        } else {
+            try {
+                var template = generatedVersion_.buildTemplate();
+                generatedVersion_.writeTemplate(template);
+                if (LOGGER.isLoggable(Level.INFO) && !silent()) {
+                    LOGGER.log(Level.INFO, "Generated version ({0}) class saved to: file://{1}",
+                            new String[]{generatedVersion_.getProject().version().toString(),
+                                    generatedVersion_.getClassFile().toURI().getPath()});
+                }
+            } catch (Exception e) {
+                if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                    LOGGER.severe(e.getMessage());
+                }
+                throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+            }
         }
     }
 
