@@ -66,7 +66,7 @@ public void genver() throws Exception {
         .projectName("My App")
         .packageName("com.example.myapp")
         .className("MyAppVersion")
-        .classTemplate(new File(workDirectory, "myversion.txt"))
+        .classTemplate("myversion.txt")
         .execute();
 }
 ```

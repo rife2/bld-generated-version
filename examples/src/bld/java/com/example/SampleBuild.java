@@ -4,7 +4,6 @@ import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.GeneratedVersionOperation;
 
-import java.io.File;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
@@ -47,7 +46,7 @@ public class SampleBuild extends Project {
         new GeneratedVersionOperation()
                 .fromProject(this)
 //                .projectName("My App")
-//                .classTemplate(new File(workDirectory, "myversion.txt"))
+//                .classTemplate("myversion.txt")
                 .execute();
     }
 }

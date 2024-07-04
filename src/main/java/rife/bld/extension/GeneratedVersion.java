@@ -26,7 +26,6 @@ import rife.tools.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Objects;
 
 /**
  * GeneratedVersion data class.
@@ -45,7 +44,7 @@ public class GeneratedVersion {
     private static final String REVISION = "revision";
     private static final String VERSION = "version";
     private File classFile_;
-    private String className_;
+    private String className_ = "GeneratedVersion";
     private File directory_;
     private String extension_ = ".java";
     private String packageName_;
@@ -64,9 +63,15 @@ public class GeneratedVersion {
         if (template_ == null) {
             template = TemplateFactory.TXT.get("version.txt");
         } else {
-            var files = new ResourceFinderDirectories(template_.getParentFile());
-            template = new TemplateFactory(TemplateConfig.TXT, "txtFiles", TemplateFactory.TXT)
-                    .setResourceFinder(files).get(template_.getName());
+            File parent;
+            if (template_.getParentFile() != null) {
+                parent = template_.getParentFile();
+            } else {
+                parent = new File(template_.getAbsolutePath()).getParentFile();
+            }
+            var dirs = new ResourceFinderDirectories(parent);
+            template = new TemplateFactory(TemplateConfig.TXT, "txt", TemplateFactory.TXT)
+                    .setResourceFinder(dirs).get(template_.getName());
         }
 
         if (packageName_ == null) {
@@ -78,7 +83,7 @@ public class GeneratedVersion {
         }
 
         if (template.hasValueId(CLASSNAME)) {
-            template.setValue(CLASSNAME, Objects.requireNonNullElse(className_, "GeneratedVersion"));
+            template.setValue(CLASSNAME, className_);
         }
 
         if (template.hasValueId(PROJECT)) {
