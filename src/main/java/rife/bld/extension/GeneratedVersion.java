@@ -19,7 +19,6 @@ package rife.bld.extension;
 import rife.bld.BaseProject;
 import rife.resources.ResourceFinderDirectories;
 import rife.template.Template;
-import rife.template.TemplateConfig;
 import rife.template.TemplateFactory;
 import rife.tools.FileUtils;
 
@@ -61,7 +60,7 @@ public class GeneratedVersion {
         Template template;
         var version = project_.version();
         if (template_ == null) {
-            template = TemplateFactory.TXT.get("version.txt");
+            template = TemplateFactory.TXT.get("default_generated_version");
         } else {
             File parent;
             if (template_.getParentFile() != null) {
@@ -70,8 +69,7 @@ public class GeneratedVersion {
                 parent = new File(template_.getAbsolutePath()).getParentFile();
             }
             var dirs = new ResourceFinderDirectories(parent);
-            template = new TemplateFactory(TemplateConfig.TXT, "txt", TemplateFactory.TXT)
-                    .setResourceFinder(dirs).get(template_.getName());
+            template = TemplateFactory.TXT.setResourceFinder(dirs).get(template_.getName());
         }
 
         if (packageName_ == null) {

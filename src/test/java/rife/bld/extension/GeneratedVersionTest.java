@@ -134,14 +134,20 @@ class GeneratedVersionTest {
                 .fromProject(PROJECT)
                 .directory(tmpDir.getAbsolutePath())
                 .extension(".java")
-                .classTemplate("src/test/resources/other_version_test.txt")
+                .classTemplate("src/test/resources/foo/version_test.txt")
                 .packageName("")
                 .className("MyVersion")
                 .execute();
 
         deleteOnExit(tmpDir);
 
-        assertThat(new File(tmpDir, "MyVersion.java")).exists();
+        var template = new File(tmpDir, "MyVersion.java");
+        assertThat(template).exists();
+
+        var content = Files.readString(template.toPath());
+        assertThat(content).contains("class MyVersion")
+                .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
+                .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("private MyVersion");
     }
 
     @Test

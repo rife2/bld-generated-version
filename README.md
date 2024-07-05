@@ -66,12 +66,12 @@ public void genver() throws Exception {
         .projectName("My App")
         .packageName("com.example.myapp")
         .className("MyAppVersion")
-        .classTemplate("myversion.txt")
+        .classTemplate("my_app_version.txt")
         .execute();
 }
 ```
 ```java
-// myversion.txt
+// my_app_version.txt
 
 package {{v packageName/}};
 
