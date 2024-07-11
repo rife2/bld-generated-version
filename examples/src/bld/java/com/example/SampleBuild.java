@@ -47,6 +47,7 @@ public class SampleBuild extends Project {
                 .fromProject(this)
 //                .projectName("My App")
 //                .classTemplate("my_app_version.txt")
+//                .classTemplate("version.txt")
                 .execute();
     }
 }

@@ -17,7 +17,9 @@
 package rife.bld.extension;
 
 import rife.bld.BaseProject;
+import rife.resources.ResourceFinderClasspath;
 import rife.resources.ResourceFinderDirectories;
+import rife.resources.ResourceFinderGroup;
 import rife.template.Template;
 import rife.template.TemplateFactory;
 import rife.tools.FileUtils;
@@ -59,8 +61,10 @@ public class GeneratedVersion {
     public Template buildTemplate() {
         Template template;
         var version = project_.version();
+        TemplateFactory.TXT.resetClassLoader();
         if (template_ == null) {
-            template = TemplateFactory.TXT.get("default_generated_version");
+            var group = new ResourceFinderGroup().add(ResourceFinderClasspath.instance());
+            template = TemplateFactory.TXT.setResourceFinder(group).get("default_generated_version");
         } else {
             File parent;
             if (template_.getParentFile() != null) {
@@ -68,8 +72,8 @@ public class GeneratedVersion {
             } else {
                 parent = new File(template_.getAbsolutePath()).getParentFile();
             }
-            var dirs = new ResourceFinderDirectories(parent);
-            template = TemplateFactory.TXT.setResourceFinder(dirs).get(template_.getName());
+            var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
+            template = TemplateFactory.TXT.setResourceFinder(group).get(template_.getName());
         }
 
         if (packageName_ == null) {

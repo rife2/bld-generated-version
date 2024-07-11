@@ -1,0 +1,17 @@
+package {{v packageName/}};
+
+import java.util.Date;
+
+public final class {{v className/}} {
+    public static final String PROJECT = "{{v project/}}";
+    public static final Date BUILD_DATE = new Date({{v epoch/}}L);
+    public static final int MAJOR = {{v major/}};
+    public static final int MINOR = {{v minor/}};
+    public static final int REVISION = {{v revision/}};
+    public static final String QUALIFIER = "{{v qualifier/}}";
+    public static final String VERSION = "{{v version/}}";
+
+    private {{v className/}}() {
+        // no-op
+    }
+}

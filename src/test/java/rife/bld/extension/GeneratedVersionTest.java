@@ -16,15 +16,18 @@
 
 package rife.bld.extension;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import rife.bld.BaseProject;
 import rife.bld.Project;
+import rife.bld.blueprints.BaseProjectBlueprint;
 import rife.bld.dependencies.VersionNumber;
 import rife.tools.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -38,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GeneratedVersionTest {
     private final BaseProject PROJECT = new Project() {
         @Override
@@ -108,7 +110,6 @@ class GeneratedVersionTest {
     }
 
     @Test
-    @Order(1)
     void testBuildTemplate() {
         var gv = new GeneratedVersion();
         gv.setProject(PROJECT);
@@ -124,6 +125,29 @@ class GeneratedVersionTest {
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
                 .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("VERSION = \"2.1.3\"")
                 .contains("private GeneratedVersion");
+    }
+
+    @Test
+    void testExample() throws Exception {
+        var tmpDir = Files.createTempDirectory("bld-generated-version-example-").toFile();
+        tmpDir.deleteOnExit();
+
+        new GeneratedVersionOperation()
+                .fromProject(new BaseProjectBlueprint(new File("examples"), "com.example", "Example"))
+                .directory(tmpDir.getAbsolutePath())
+                //.classTemplate(new File("examples", "my_app_version.txt"))
+                .classTemplate(new File("examples", "version.txt"))
+                .execute();
+
+        deleteOnExit(tmpDir);
+
+        var template = Path.of(tmpDir.getAbsolutePath(), "com", "example", "GeneratedVersion.java");
+        assertThat(template).exists();
+
+        var content = Files.readString(template);
+        assertThat(content).contains("class GeneratedVersion").contains("PROJECT = \"Example\";")
+                .contains("MAJOR = 0").contains("MINOR = 0").contains("REVISION = 1").contains("QUALIFIER = \"\"")
+                .doesNotContain("ERASED!"); // only in default template
     }
 
     @Test
@@ -173,7 +197,6 @@ class GeneratedVersionTest {
     }
 
     @Test
-    @Order(2)
     void testWriteTemplate() throws IOException {
         var tmpDir = Files.createTempDirectory("bld-generated-version-write-").toFile();
         tmpDir.deleteOnExit();
