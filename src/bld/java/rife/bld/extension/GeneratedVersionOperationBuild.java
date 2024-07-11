@@ -22,7 +22,6 @@ import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
-import java.io.IOException;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
@@ -97,7 +96,7 @@ public class GeneratedVersionOperationBuild extends Project {
     }
 
     @BuildCommand(summary = "Generates JaCoCo Reports")
-    public void jacoco() throws IOException {
+    public void jacoco() throws Exception {
         new JacocoReportOperation()
                 .fromProject(this)
                 .execute();
