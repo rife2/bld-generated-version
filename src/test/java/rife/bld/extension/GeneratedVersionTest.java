@@ -16,8 +16,7 @@
 
 package rife.bld.extension;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import rife.bld.BaseProject;
 import rife.bld.Project;
 import rife.bld.dependencies.VersionNumber;
@@ -39,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GeneratedVersionTest {
     private final BaseProject PROJECT = new Project() {
         @Override
@@ -108,6 +108,7 @@ class GeneratedVersionTest {
     }
 
     @Test
+    @Order(1)
     void testBuildTemplate() {
         var gv = new GeneratedVersion();
         gv.setProject(PROJECT);
@@ -127,7 +128,7 @@ class GeneratedVersionTest {
 
     @Test
     void testExecute() throws Exception {
-        var tmpDir = Files.createTempDirectory("bld-generated-version-").toFile();
+        var tmpDir = Files.createTempDirectory("bld-generated-version-execute-").toFile();
         tmpDir.deleteOnExit();
 
         new GeneratedVersionOperation()
@@ -147,7 +148,8 @@ class GeneratedVersionTest {
         var content = Files.readString(template.toPath());
         assertThat(content).contains("class MyVersion")
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
-                .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("private MyVersion");
+                .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("private MyVersion")
+                .doesNotContain("package");
     }
 
     @Test
@@ -171,8 +173,9 @@ class GeneratedVersionTest {
     }
 
     @Test
+    @Order(2)
     void testWriteTemplate() throws IOException {
-        var tmpDir = Files.createTempDirectory("bld-generated-version-").toFile();
+        var tmpDir = Files.createTempDirectory("bld-generated-version-write-").toFile();
         tmpDir.deleteOnExit();
 
         var gv = new GeneratedVersion();

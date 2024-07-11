@@ -45,8 +45,8 @@ public class SampleBuild extends Project {
     public void genver() throws Exception {
         new GeneratedVersionOperation()
                 .fromProject(this)
-                .projectName("My App")
-                .classTemplate("my_app_version.txt")
+//                .projectName("My App")
+//                .classTemplate("my_app_version.txt")
                 .execute();
     }
 }

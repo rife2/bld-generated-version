@@ -35,7 +35,7 @@ public class GeneratedVersionOperationBuild extends Project {
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
-        version = version(0, 9, 7);
+        version = version(0, 9, 8, "SNAPSHOT");
 
         javaRelease = 17;
 
@@ -49,7 +49,7 @@ public class GeneratedVersionOperationBuild extends Project {
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 3)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 3)))
-                .include(dependency("org.assertj", "assertj-core", version(3, 26, 0)));
+                .include(dependency("org.assertj", "assertj-core", version(3, 26, 3)));
 
         precompileOperation()
                 .templateTypes(TXT);
