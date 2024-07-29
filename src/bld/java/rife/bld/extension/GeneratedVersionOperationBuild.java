@@ -24,9 +24,7 @@ import rife.bld.publish.PublishScm;
 
 import java.util.List;
 
-import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
-import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
-import static rife.bld.dependencies.Repository.RIFE2_SNAPSHOTS;
+import static rife.bld.dependencies.Repository.*;
 import static rife.bld.dependencies.Scope.compile;
 import static rife.bld.dependencies.Scope.test;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
@@ -46,7 +44,7 @@ public class GeneratedVersionOperationBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(2, 0, 0, "SNAPSHOT")));
+                .include(dependency("com.uwyn.rife2", "bld", version(2, 0, 1)));
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 3)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 3)))
@@ -94,13 +92,6 @@ public class GeneratedVersionOperationBuild extends Project {
 
     public static void main(String[] args) {
         new GeneratedVersionOperationBuild().start(args);
-    }
-
-    @BuildCommand(summary = "Generates JaCoCo Reports")
-    public void jacoco() throws Exception {
-        new JacocoReportOperation()
-                .fromProject(this)
-                .execute();
     }
 
     @BuildCommand(summary = "Runs PMD analysis")
