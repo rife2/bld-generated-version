@@ -22,6 +22,7 @@ import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,6 +69,16 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
+     * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation classTemplate(Path template) {
+        return classTemplate(template.toFile());
+    }
+
+    /**
      * Sets the destination directory.
      *
      * @param directory the destination directory
@@ -86,6 +97,16 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      */
     public GeneratedVersionOperation directory(String directory) {
         return directory(new File(directory));
+    }
+
+    /**
+     * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation directory(Path directory) {
+        return directory(directory.toFile());
     }
 
     /**
@@ -138,6 +159,15 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
         generatedVersion_.setProject(project);
         generatedVersion_.setDirectory(project.srcMainJavaDirectory());
         return this;
+    }
+
+    /**
+     * Retrieves the generated version instance.
+     *
+     * @return the generated version
+     */
+    public GeneratedVersion generatedVersion() {
+        return generatedVersion_;
     }
 
     /**

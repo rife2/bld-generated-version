@@ -91,17 +91,16 @@ class GeneratedVersionTest {
         gv.setClassName("MyVersion");
 
         var t = gv.buildTemplate();
-        //noinspection TrailingWhitespacesInTextBlock
         assertThat(t.getContent()).isEqualTo("""
                 package com.example.my;
-                                
+                
                 public final class MyVersion {
                     public static final int PROJECT = "My App";
                     public static final int MAJOR = 2;
                     public static final int MINOR = 1;
                     public static final int REVISION = 3;
                     public static final String QUALIFIER = "";
-                                
+                
                     private MyVersion() {
                         // no-op
                     }
@@ -125,6 +124,21 @@ class GeneratedVersionTest {
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
                 .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("VERSION = \"2.1.3\"")
                 .contains("private GeneratedVersion");
+    }
+
+    @Test
+    void testDirectories() {
+        var foo = new File("foo");
+        var bar = new File("bar");
+
+        var op = new GeneratedVersionOperation().directory(foo);
+        assertThat(op.generatedVersion().getDirectory()).as("as file").isEqualTo(foo);
+
+        op = op.directory(bar.toPath());
+        assertThat(op.generatedVersion().getDirectory()).as("as path").isEqualTo(bar);
+
+        op = op.directory("foo");
+        assertThat(op.generatedVersion().getDirectory()).as("as string").isEqualTo(foo);
     }
 
     @Test
