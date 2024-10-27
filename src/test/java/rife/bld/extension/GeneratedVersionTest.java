@@ -16,6 +16,7 @@
 
 package rife.bld.extension;
 
+import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import rife.bld.BaseProject;
@@ -116,9 +117,11 @@ class GeneratedVersionTest {
         var t = gv.buildTemplate();
         assertThat(t).isNotNull();
 
-        assertThat(gv.getProject()).isEqualTo(PROJECT);
-        assertThat(gv.getPackageName()).isEqualTo(PROJECT.pkg());
-        assertThat(gv.getProjectName()).isEqualTo(PROJECT.name());
+        try (var softly = new AutoCloseableSoftAssertions()) {
+            softly.assertThat(gv.getProject()).isEqualTo(PROJECT);
+            softly.assertThat(gv.getPackageName()).isEqualTo(PROJECT.pkg());
+            softly.assertThat(gv.getProjectName()).isEqualTo(PROJECT.name());
+        }
 
         assertThat(t.getContent()).contains("package com.example;").contains("class GeneratedVersion")
                 .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
@@ -201,13 +204,15 @@ class GeneratedVersionTest {
         gv.setDirectory(new File("build"));
         gv.setExtension(".java");
 
-        assertThat(gv.getProject()).as("project").isEqualTo(PROJECT);
-        assertThat(gv.getTemplate()).as("template").exists();
-        assertThat(gv.getPackageName()).as("package name").isEqualTo("com.example.cool");
-        assertThat(gv.getProjectName()).as("project name").isEqualTo("Cool App");
-        assertThat(gv.getClassName()).as("class name").isEqualTo("CoolVersion");
-        assertThat(gv.getExtension()).as("extension").isEqualTo(".java");
-        assertThat(gv.getDirectory()).as("directory").isDirectory();
+        try (var softly = new AutoCloseableSoftAssertions()) {
+            softly.assertThat(gv.getProject()).as("project").isEqualTo(PROJECT);
+            softly.assertThat(gv.getTemplate()).as("template").exists();
+            softly.assertThat(gv.getPackageName()).as("package name").isEqualTo("com.example.cool");
+            softly.assertThat(gv.getProjectName()).as("project name").isEqualTo("Cool App");
+            softly.assertThat(gv.getClassName()).as("class name").isEqualTo("CoolVersion");
+            softly.assertThat(gv.getExtension()).as("extension").isEqualTo(".java");
+            softly.assertThat(gv.getDirectory()).as("directory").isDirectory();
+        }
     }
 
     @Test
