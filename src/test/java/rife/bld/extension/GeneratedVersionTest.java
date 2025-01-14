@@ -150,7 +150,7 @@ class GeneratedVersionTest {
         tmpDir.deleteOnExit();
 
         new GeneratedVersionOperation()
-                .fromProject(new BaseProjectBlueprint(new File("examples"), "com.example", "Example"))
+                .fromProject(new BaseProjectBlueprint(new File("examples"), "com.example", "Example", "Example"))
                 .directory(tmpDir.getAbsolutePath())
                 //.classTemplate(new File("examples", "my_app_version.txt"))
                 .classTemplate(new File("examples", "version.txt"))
