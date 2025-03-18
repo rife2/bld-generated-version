@@ -8,7 +8,15 @@
 [![Snapshot](https://flat.badgen.net/maven/v/metadata-url/repo.rife2.com/snapshots/com/uwyn/rife2/bld-generated-version/maven-metadata.xml?label=snapshot)](https://repo.rife2.com/#/snapshots/com/uwyn/rife2/bld-generated-version)
 [![GitHub CI](https://github.com/rife2/bld-generated-version/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-generated-version/actions/workflows/bld.yml)
 
-To install, please refer to the [extensions documentation](https://github.com/rife2/bld/wiki/Extensions).
+To install the latest version, add the following to the `lib/bld/bld-wrapper.properties` file:
+
+```properties
+bld.extension-generated-version=com.uwyn.rife2:bld-generated-version
+```
+
+For more information, please refer to the [extensions](https://github.com/rife2/bld/wiki/Extensions) documentation.
+
+## Generate Version Data Class
 
 To automatically create a generated version class using the default template in your project on compile, add the following to your build file:
 ```java
