@@ -1,17 +1,16 @@
 name: bld-ci
 
-on: [push, pull_request, workflow_dispatch]
-
-env:
-  KOTLIN_HOME: /usr/share/kotlinc
+on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
   build-bld-project:
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        java-version: [17, 21, 24]
+        java-version: [ 17, 21, 24 ]
+        kotlin-version: [ 1.9.25, 2.0.21, 2.1.20 ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout source repository
@@ -24,6 +23,14 @@ jobs:
         with:
           distribution: "zulu"
           java-version: ${{ matrix.java-version }}
+
+      - name: Download dependencies [examples]
+        working-directory: examples
+        run: ./bld download
+
+      - name: Compile and run [examples]
+        working-directory: examples
+        run: ./bld compile run
 
       - name: Download dependencies
         run: ./bld download
