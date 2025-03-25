@@ -91,22 +91,21 @@ class GeneratedVersionTest {
         gv.setProjectName("My App");
         gv.setClassName("MyVersion");
 
+        var eol = System.lineSeparator();
         var t = gv.buildTemplate();
-        assertThat(t.getContent()).isEqualTo("""
-                package com.example.my;
-                
-                public final class MyVersion {
-                    public static final int PROJECT = "My App";
-                    public static final int MAJOR = 2;
-                    public static final int MINOR = 1;
-                    public static final int REVISION = 3;
-                    public static final String QUALIFIER = "";
-                
-                    private MyVersion() {
-                        // no-op
-                    }
-                }
-                """);
+        assertThat(t.getContent()).isEqualTo("package com.example.my;" + eol +
+                                             eol +
+                                             "public final class MyVersion {" + eol +
+                                             "    public static final int PROJECT = \"My App\";" + eol +
+                                             "    public static final int MAJOR = 2;" + eol +
+                                             "    public static final int MINOR = 1;" + eol +
+                                             "    public static final int REVISION = 3;" + eol +
+                                             "    public static final String QUALIFIER = \"\";" + eol +
+                                             eol +
+                                             "    private MyVersion() {" + eol +
+                                             "        // no-op" + eol +
+                                             "    }" + eol +
+                                             "}" + eol);
     }
 
     @Test
