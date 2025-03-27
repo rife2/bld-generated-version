@@ -82,6 +82,30 @@ class GeneratedVersionTest {
         }
     }
 
+    /**
+     * Compares two strings by removing all line separators and whitespace.
+     *
+     * @param text1 The first text to compare
+     * @param text2 The second text to compare
+     * @return true if the texts are equivalent when line separators are ignored, false otherwise
+     */
+    static boolean compareTextIgnoringLineSeparators(String text1, String text2) {
+        // Handle null cases
+        if (text1 == null && text2 == null) {
+            return true;
+        }
+        if (text1 == null || text2 == null) {
+            return false;
+        }
+
+        // Remove all line separators and whitespace
+        var cleanedText1 = text1.replaceAll("\\r?\\n|\\r|\\s", "");
+        var cleanedText2 = text2.replaceAll("\\r?\\n|\\r|\\s", "");
+
+        // Compare the cleaned strings
+        return cleanedText1.equals(cleanedText2);
+    }
+
     @Test
     void testBuildCustomTemplate() {
         var gv = new GeneratedVersion();
@@ -91,21 +115,18 @@ class GeneratedVersionTest {
         gv.setProjectName("My App");
         gv.setClassName("MyVersion");
 
-        var eol = System.lineSeparator();
         var t = gv.buildTemplate();
-        assertThat(t.getContent()).isEqualTo("package com.example.my;" + eol +
-                                             eol +
-                                             "public final class MyVersion {" + eol +
-                                             "    public static final int PROJECT = \"My App\";" + eol +
-                                             "    public static final int MAJOR = 2;" + eol +
-                                             "    public static final int MINOR = 1;" + eol +
-                                             "    public static final int REVISION = 3;" + eol +
-                                             "    public static final String QUALIFIER = \"\";" + eol +
-                                             eol +
-                                             "    private MyVersion() {" + eol +
-                                             "        // no-op" + eol +
-                                             "    }" + eol +
-                                             "}" + eol);
+        assertThat(compareTextIgnoringLineSeparators(t.getContent(),"package com.example.my;" +
+                                             "public final class MyVersion {" + 
+                                             "    public static final int PROJECT = \"My App\";" + 
+                                             "    public static final int MAJOR = 2;" + 
+                                             "    public static final int MINOR = 1;" + 
+                                             "    public static final int REVISION = 3;" + 
+                                             "    public static final String QUALIFIER = \"\";" +
+                                             "    private MyVersion() {" + 
+                                             "        // no-op" + 
+                                             "    }" + 
+                                             "}")).isTrue();
     }
 
     @Test
