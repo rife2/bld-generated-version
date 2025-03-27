@@ -71,17 +71,6 @@ class GeneratedVersionTest {
         logger.setUseParentHandlers(false);
     }
 
-    static void deleteOnExit(File folder) {
-        folder.deleteOnExit();
-        for (var f : Objects.requireNonNull(folder.listFiles())) {
-            if (f.isDirectory()) {
-                deleteOnExit(f);
-            } else {
-                f.deleteOnExit();
-            }
-        }
-    }
-
     /**
      * Compares two strings by removing all line separators and whitespace.
      *
@@ -106,6 +95,17 @@ class GeneratedVersionTest {
         return cleanedText1.equals(cleanedText2);
     }
 
+    static void deleteOnExit(File folder) {
+        folder.deleteOnExit();
+        for (var f : Objects.requireNonNull(folder.listFiles())) {
+            if (f.isDirectory()) {
+                deleteOnExit(f);
+            } else {
+                f.deleteOnExit();
+            }
+        }
+    }
+
     @Test
     void testBuildCustomTemplate() {
         var gv = new GeneratedVersion();
@@ -116,17 +116,22 @@ class GeneratedVersionTest {
         gv.setClassName("MyVersion");
 
         var t = gv.buildTemplate();
-        assertThat(compareTextIgnoringLineSeparators(t.getContent(),"package com.example.my;" +
-                                             "public final class MyVersion {" + 
-                                             "    public static final int PROJECT = \"My App\";" + 
-                                             "    public static final int MAJOR = 2;" + 
-                                             "    public static final int MINOR = 1;" + 
-                                             "    public static final int REVISION = 3;" + 
-                                             "    public static final String QUALIFIER = \"\";" +
-                                             "    private MyVersion() {" + 
-                                             "        // no-op" + 
-                                             "    }" + 
-                                             "}")).isTrue();
+        var v = gv.getProject().version();
+        assertThat(v).extracting("majorInt", "minorInt", "revisionInt").as("version")
+                .containsExactly(2, 1, 3);
+        assertThat(compareTextIgnoringLineSeparators(t.getContent(),
+                String.format("package %s;" +
+                              "public final class %s {" +
+                              "    public static final int PROJECT = \"%s\";" +
+                              "    public static final int MAJOR = %d;" +
+                              "    public static final int MINOR = %d;" +
+                              "    public static final int REVISION = %d;" +
+                              "    public static final String QUALIFIER = \"\";" +
+                              "    private MyVersion() {" +
+                              "        // no-op" +
+                              "    }" +
+                              "}", gv.getPackageName(), gv.getClassName(), gv.getProjectName(), v.majorInt(),
+                        v.minorInt(), v.revisionInt()))).as("template").isTrue();
     }
 
     @Test
