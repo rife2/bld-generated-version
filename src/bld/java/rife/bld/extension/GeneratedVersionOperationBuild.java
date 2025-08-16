@@ -70,7 +70,7 @@ public class GeneratedVersionOperationBuild extends Project {
                 .info()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-generated-version")
-                .description("bld Extension to Generate Project Version Data")
+                .description("Generate Project Version Extension for bld")
                 .url("https://github.com/rife2/generated-version")
                 .developer(new PublishDeveloper()
                         .id("ethauvin")
