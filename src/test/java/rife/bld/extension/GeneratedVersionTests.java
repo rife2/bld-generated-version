@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import rife.bld.BaseProject;
 import rife.bld.Project;
 import rife.bld.blueprints.BaseProjectBlueprint;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,6 +61,9 @@ class GeneratedVersionTests {
             return new VersionNumber(2, 1, 3);
         }
     };
+
+    @TempDir
+    private File tmpDir;
 
     @BeforeAll
     static void beforeAll() {
@@ -97,17 +100,6 @@ class GeneratedVersionTests {
         return cleanedText1.equals(cleanedText2);
     }
 
-    static void deleteOnExit(File folder) {
-        folder.deleteOnExit();
-        for (var f : Objects.requireNonNull(folder.listFiles())) {
-            if (f.isDirectory()) {
-                deleteOnExit(f);
-            } else {
-                f.deleteOnExit();
-            }
-        }
-    }
-
     @Test
     void generatedVersion() {
         var gv = new GeneratedVersion();
@@ -127,59 +119,6 @@ class GeneratedVersionTests {
             softly.assertThat(gv.getClassName()).as("class name").isEqualTo("CoolVersion");
             softly.assertThat(gv.getExtension()).as("extension").isEqualTo(".java");
             softly.assertThat(gv.getDirectory()).as("directory").isDirectory();
-        }
-    }
-
-    @Nested
-    @DisplayName("Execution Tests")
-    class ExecutionTests {
-        @Test
-        void example() throws Exception {
-            var tmpDir = Files.createTempDirectory("bld-generated-version-example-").toFile();
-            tmpDir.deleteOnExit();
-
-            new GeneratedVersionOperation()
-                    .fromProject(new BaseProjectBlueprint(new File("examples"), "com.example", "Example", "Example"))
-                    .directory(tmpDir.getAbsolutePath())
-                    //.classTemplate(new File("examples", "my_app_version.txt"))
-                    .classTemplate(new File("examples", "version.txt"))
-                    .execute();
-
-            deleteOnExit(tmpDir);
-
-            var template = Path.of(tmpDir.getAbsolutePath(), "com", "example", "GeneratedVersion.java");
-            assertThat(template).exists();
-
-            var content = Files.readString(template);
-            assertThat(content).contains("class GeneratedVersion").contains("PROJECT = \"Example\";")
-                    .contains("MAJOR = 0").contains("MINOR = 0").contains("REVISION = 1").contains("QUALIFIER = \"\"")
-                    .doesNotContain("ERASED!"); // only in the default template
-        }
-
-        @Test
-        void execute() throws Exception {
-            var tmpDir = Files.createTempDirectory("bld-generated-version-execute-").toFile();
-            tmpDir.deleteOnExit();
-
-            new GeneratedVersionOperation()
-                    .fromProject(PROJECT)
-                    .directory(tmpDir.getAbsolutePath())
-                    .extension(".java")
-                    .classTemplate("src/test/resources/foo/version_test.txt")
-                    .packageName("")
-                    .className("MyVersion")
-                    .execute();
-
-            deleteOnExit(tmpDir);
-
-            var template = new File(tmpDir, "MyVersion.java");
-            assertThat(template).exists();
-
-            var content = Files.readString(template.toPath());
-            assertThat(content).contains("class MyVersion")
-                    .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
-                    .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("private MyVersion")
-                    .doesNotContain("package");
         }
     }
 
@@ -206,6 +145,49 @@ class GeneratedVersionTests {
         void directoriesAsString() {
             op.directory("foo");
             assertThat(op.generatedVersion().getDirectory()).as("as string").isEqualTo(foo);
+        }
+    }
+
+    @Nested
+    @DisplayName("Execution Tests")
+    class ExecutionTests {
+        @Test
+        void example() throws Exception {
+            new GeneratedVersionOperation()
+                    .fromProject(new BaseProjectBlueprint(new File("examples"), "com.example", "Example", "Example"))
+                    .directory(tmpDir.getAbsolutePath())
+                    //.classTemplate(new File("examples", "my_app_version.txt"))
+                    .classTemplate(new File("examples", "version.txt"))
+                    .execute();
+
+            var template = Path.of(tmpDir.getAbsolutePath(), "com", "example", "GeneratedVersion.java");
+            assertThat(template).exists();
+
+            var content = Files.readString(template);
+            assertThat(content).contains("class GeneratedVersion").contains("PROJECT = \"Example\";")
+                    .contains("MAJOR = 0").contains("MINOR = 0").contains("REVISION = 1").contains("QUALIFIER = \"\"")
+                    .doesNotContain("ERASED!"); // only in the default template
+        }
+
+        @Test
+        void execute() throws Exception {
+            new GeneratedVersionOperation()
+                    .fromProject(PROJECT)
+                    .directory(tmpDir.getAbsolutePath())
+                    .extension(".java")
+                    .classTemplate("src/test/resources/foo/version_test.txt")
+                    .packageName("")
+                    .className("MyVersion")
+                    .execute();
+
+            var template = new File(tmpDir, "MyVersion.java");
+            assertThat(template).exists();
+
+            var content = Files.readString(template.toPath());
+            assertThat(content).contains("class MyVersion")
+                    .contains("PROJECT = \"MyExample\";").contains("MAJOR = 2").contains("MINOR = 1")
+                    .contains("REVISION = 3").contains("QUALIFIER = \"\"").contains("private MyVersion")
+                    .doesNotContain("package");
         }
     }
 
@@ -262,17 +244,12 @@ class GeneratedVersionTests {
 
         @Test
         void writeTemplate() throws IOException {
-            var tmpDir = Files.createTempDirectory("bld-generated-version-write-").toFile();
-            tmpDir.deleteOnExit();
-
             var gv = new GeneratedVersion();
             gv.setProject(PROJECT);
             gv.setDirectory(tmpDir);
 
             var t = gv.buildTemplate();
             gv.writeTemplate(t);
-
-            deleteOnExit(tmpDir);
 
             assertThat(gv.getClassFile()).exists();
 
