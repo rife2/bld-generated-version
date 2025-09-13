@@ -110,6 +110,14 @@ public class GeneratedVersionOperationBuild extends Project {
                 .execute();
     }
 
+    @BuildCommand(summary = "Runs the JUnit reporter")
+    public void reporter() throws Exception {
+        new JUnitReporterOperation()
+                .fromProject(this)
+                .failOnSummary(true)
+                .execute();
+    }
+
     @Override
     public void test() throws Exception {
         var testResultsDir = "build/test-results/test/";

@@ -141,66 +141,21 @@ public class GeneratedVersion {
     }
 
     /**
-     * Returns the destination directory.
-     *
-     * @return the destination directory
-     */
-    public File getDirectory() {
-        return directory_;
-    }
-
-    /**
-     * Returns the file extension.
-     *
-     * @return the file extension
-     */
-    public String getExtension() {
-        return extension_;
-    }
-
-    /**
-     * Returns the package name.
-     *
-     * @return the package name
-     */
-    public String getPackageName() {
-        return packageName_;
-    }
-
-    /**
-     * Returns the project.
-     *
-     * @return the project
-     */
-    public BaseProject getProject() {
-        return project_;
-    }
-
-    /**
-     * Returns the project name.
-     *
-     * @return the project name
-     */
-    public String getProjectName() {
-        return projectName_;
-    }
-
-    /**
-     * Returns the template.
-     *
-     * @return the template
-     */
-    public File getTemplate() {
-        return template_;
-    }
-
-    /**
      * Sets the class name.
      *
      * @param className the class name
      */
     public void setClassName(String className) {
         this.className_ = className;
+    }
+
+    /**
+     * Returns the destination directory.
+     *
+     * @return the destination directory
+     */
+    public File getDirectory() {
+        return directory_;
     }
 
     /**
@@ -213,12 +168,30 @@ public class GeneratedVersion {
     }
 
     /**
+     * Returns the file extension.
+     *
+     * @return the file extension
+     */
+    public String getExtension() {
+        return extension_;
+    }
+
+    /**
      * Sets the file extension. (Default is: {@code .java})
      *
      * @param extension the file extension
      */
     public void setExtension(String extension) {
         this.extension_ = extension;
+    }
+
+    /**
+     * Returns the package name.
+     *
+     * @return the package name
+     */
+    public String getPackageName() {
+        return packageName_;
     }
 
     /**
@@ -231,6 +204,15 @@ public class GeneratedVersion {
     }
 
     /**
+     * Returns the project.
+     *
+     * @return the project
+     */
+    public BaseProject getProject() {
+        return project_;
+    }
+
+    /**
      * Sets the project.
      *
      * @param project the project
@@ -240,12 +222,30 @@ public class GeneratedVersion {
     }
 
     /**
+     * Returns the project name.
+     *
+     * @return the project name
+     */
+    public String getProjectName() {
+        return projectName_;
+    }
+
+    /**
      * Sets the project name.
      *
      * @param projectName the project name
      */
     public void setProjectName(String projectName) {
         this.projectName_ = projectName;
+    }
+
+    /**
+     * Returns the template.
+     *
+     * @return the template
+     */
+    public File getTemplate() {
+        return template_;
     }
 
     /**

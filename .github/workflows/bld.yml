@@ -35,4 +35,9 @@ jobs:
         run: ./bld download
 
       - name: Run tests
-        run: ./bld compile test
+        continue-on-error: true
+        run: ./bld test
+
+      - name: Run reporter
+        if: ${{ failure() }}
+        run: ./bld reporter --all
