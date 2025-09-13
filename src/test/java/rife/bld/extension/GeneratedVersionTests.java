@@ -17,24 +17,23 @@
 package rife.bld.extension;
 
 import org.assertj.core.api.AutoCloseableSoftAssertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import rife.bld.BaseProject;
 import rife.bld.Project;
 import rife.bld.blueprints.BaseProjectBlueprint;
 import rife.bld.dependencies.VersionNumber;
+import rife.bld.extension.testing.LoggingExtension;
 import rife.tools.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +43,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@ExtendWith(LoggingExtension.class)
 class GeneratedVersionTests {
+    @RegisterExtension
+    @SuppressWarnings({"unused"})
+    private static final LoggingExtension LOGGING_EXTENSION =
+            new LoggingExtension(GeneratedVersionOperation.class.getName());
+
     private final BaseProject PROJECT = new Project() {
         @Override
         public String pkg() {
@@ -61,20 +66,8 @@ class GeneratedVersionTests {
             return new VersionNumber(2, 1, 3);
         }
     };
-
     @TempDir
     private File tmpDir;
-
-    @BeforeAll
-    static void beforeAll() {
-        var level = Level.ALL;
-        var logger = Logger.getLogger("rife.bld.extension");
-        var consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(level);
-        logger.addHandler(consoleHandler);
-        logger.setLevel(level);
-        logger.setUseParentHandlers(false);
-    }
 
     /**
      * Compares two strings by removing all line separators and whitespace.
