@@ -55,7 +55,7 @@ public class GeneratedVersionOperationBuild extends Project {
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.assertj", "assertj-core",
-                        version(3, 27, 4)));
+                        version(3, 27, 6)));
 
         precompileOperation()
                 .templateTypes(TXT);
