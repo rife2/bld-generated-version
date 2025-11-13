@@ -17,6 +17,7 @@
 package rife.bld.extension;
 
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
@@ -37,83 +38,11 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     private final GeneratedVersion generatedVersion_ = new GeneratedVersion();
 
     /**
-     * Sets the class name.
-     *
-     * @param className the class name
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation className(String className) {
-        generatedVersion_.setClassName(className);
-        return this;
-    }
-
-    /**
-     * Sets the class template path.
-     *
-     * @param template the template path
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation classTemplate(File template) {
-        generatedVersion_.setTemplate(template);
-        return this;
-    }
-
-    /**
-     * Sets the class template path.
-     *
-     * @param template the template path
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation classTemplate(String template) {
-        return classTemplate(new File(template));
-    }
-
-    /**
-     * Sets the class template path.
-     *
-     * @param template the template path
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation classTemplate(Path template) {
-        return classTemplate(template.toFile());
-    }
-
-    /**
-     * Sets the destination directory.
-     *
-     * @param directory the destination directory
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation directory(File directory) {
-        generatedVersion_.setDirectory(directory);
-        return this;
-    }
-
-    /**
-     * Sets the destination directory.
-     *
-     * @param directory the destination directory
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation directory(String directory) {
-        return directory(new File(directory));
-    }
-
-    /**
-     * Sets the destination directory.
-     *
-     * @param directory the destination directory
-     * @return this operation instance
-     */
-    public GeneratedVersionOperation directory(Path directory) {
-        return directory(directory.toFile());
-    }
-
-    /**
      * Generates a version data class for this project.
      */
     @Override
-    @SuppressWarnings("PMD.PreserveStackTrace")
+    @SuppressWarnings({"PMD.PreserveStackTrace", "PMD.AvoidCatchingGenericException"})
+    @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
     public void execute() throws Exception {
         if (generatedVersion_.getProject() == null) {
             if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
@@ -136,6 +65,81 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
                 throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
             }
         }
+    }
+
+    /**
+     * Sets the class name.
+     *
+     * @param className the class name
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation className(String className) {
+        generatedVersion_.setClassName(className);
+        return this;
+    }
+
+    /**
+     * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
+     */
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    public GeneratedVersionOperation classTemplate(String template) {
+        return classTemplate(new File(template));
+    }
+
+    /**
+     * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation classTemplate(File template) {
+        generatedVersion_.setTemplate(template);
+        return this;
+    }
+
+    /**
+     * Sets the class template path.
+     *
+     * @param template the template path
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation classTemplate(Path template) {
+        return classTemplate(template.toFile());
+    }
+
+    /**
+     * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
+     */
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    public GeneratedVersionOperation directory(String directory) {
+        return directory(new File(directory));
+    }
+
+    /**
+     * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation directory(File directory) {
+        generatedVersion_.setDirectory(directory);
+        return this;
+    }
+
+    /**
+     * Sets the destination directory.
+     *
+     * @param directory the destination directory
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation directory(Path directory) {
+        return directory(directory.toFile());
     }
 
     /**
@@ -166,6 +170,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      *
      * @return the generated version
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public GeneratedVersion generatedVersion() {
         return generatedVersion_;
     }

@@ -16,6 +16,7 @@
 
 package rife.bld.extension;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.resources.ResourceFinderClasspath;
 import rife.resources.ResourceFinderDirectories;
@@ -58,6 +59,7 @@ public class GeneratedVersion {
      *
      * @return the template
      */
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public Template buildTemplate() {
         Template template;
         var version = project_.version();
@@ -66,10 +68,8 @@ public class GeneratedVersion {
             var group = new ResourceFinderGroup().add(ResourceFinderClasspath.instance());
             template = TemplateFactory.TXT.setResourceFinder(group).get("default_generated_version");
         } else {
-            File parent;
-            if (template_.getParentFile() != null) {
-                parent = template_.getParentFile();
-            } else {
+            var parent = template_.getParentFile();
+            if (parent == null) {
                 parent = new File(template_.getAbsolutePath()).getParentFile();
             }
             var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
@@ -208,6 +208,7 @@ public class GeneratedVersion {
      *
      * @return the project
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public BaseProject getProject() {
         return project_;
     }
@@ -217,6 +218,7 @@ public class GeneratedVersion {
      *
      * @param project the project
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setProject(BaseProject project) {
         this.project_ = project;
     }
@@ -260,6 +262,7 @@ public class GeneratedVersion {
     /**
      * Writes the project version class in the given directory.
      */
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public void writeTemplate(Template template) throws IOException {
         if (packageName_ != null) {
             classFile_ = Path.of(directory_.getAbsolutePath(), packageName_.replace(".", File.separator),
@@ -268,10 +271,11 @@ public class GeneratedVersion {
             classFile_ = new File(directory_, className_ + ".java");
         }
 
-        if (!classFile_.getParentFile().exists()) {
-            var dirs = classFile_.getParentFile().mkdirs();
-            if (!dirs && !classFile_.getParentFile().exists()) {
-                throw new IOException("Could not create project package directories: " + classFile_.getParent());
+        var parentFile = classFile_.getParentFile();
+        if (!parentFile.exists()) {
+            var dirs = parentFile.mkdirs();
+            if (!dirs && !parentFile.exists()) {
+                throw new IOException("Could not create project package directories: " + parentFile.getAbsolutePath());
             }
         }
 

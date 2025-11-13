@@ -11,6 +11,7 @@
     <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" method="pmd" />
     <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" method="jacoco" />
     <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" method="reporter" />
+    <pattern value="rife.bld.extension.GeneratedVersionOperationBuild" method="spotbugs" />
   </component>
   <component name="PDMPlugin">
     <option name="customRuleSets">
