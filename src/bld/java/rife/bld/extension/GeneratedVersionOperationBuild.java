@@ -121,33 +121,6 @@ public class GeneratedVersionOperationBuild extends Project {
         var testResultsDir = "build/test-results/test/";
         var op = testOperation().fromProject(this);
         op.testToolOptions().reportsDir(new File(testResultsDir));
-
-        Exception ex = null;
-        try {
-            op.execute();
-        } catch (Exception e) {
-            ex = e;
-        }
-
-        var npmPackagesEnv = System.getenv("NPM_PACKAGES");
-        if (npmPackagesEnv != null && !npmPackagesEnv.isEmpty()) {
-            var xunitViewer = Path.of(npmPackagesEnv, "bin", "xunit-viewer").toFile();
-            if (xunitViewer.exists() && xunitViewer.canExecute()) {
-                var reportsDir = "build/reports/tests/test/";
-
-                Files.createDirectories(Path.of(reportsDir));
-
-                new ExecOperation()
-                        .fromProject(this)
-                        .command(xunitViewer.getPath(), "-r", testResultsDir, "-o", reportsDir + "index.html")
-                        .execute();
-            }
-        }
-
-        if (ex != null) {
-            throw ex;
-        }
+        op.execute();
     }
-
-
 }
