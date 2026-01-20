@@ -18,11 +18,11 @@ package rife.bld.extension;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
+import rife.bld.extension.tools.IOUtils;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
-import java.io.File;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.*;
@@ -31,6 +31,7 @@ import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 import static rife.bld.operations.TemplateType.TXT;
 
 public class GeneratedVersionOperationBuild extends Project {
+
     public GeneratedVersionOperationBuild() {
         pkg = "rife.bld.extension";
         name = "GeneratedVersionOperation";
@@ -97,9 +98,8 @@ public class GeneratedVersionOperationBuild extends Project {
 
     @Override
     public void test() throws Exception {
-        var testResultsDir = "build/test-results/test/";
         var op = testOperation().fromProject(this);
-        op.testToolOptions().reportsDir(new File(testResultsDir));
+        op.testToolOptions().reportsDir(IOUtils.resolveFile(buildDirectory(), "test-results", "test"));
         op.execute();
     }
 
