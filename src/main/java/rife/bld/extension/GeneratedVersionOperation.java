@@ -34,6 +34,7 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersionOperation> {
+
     private static final Logger LOGGER = Logger.getLogger(GeneratedVersionOperation.class.getName());
     private final GeneratedVersion generatedVersion_ = new GeneratedVersion();
 

@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(LoggingExtension.class)
 class GeneratedVersionTests {
+
     @RegisterExtension
     @SuppressWarnings({"unused"})
     private static final LoggingExtension LOGGING_EXTENSION =
@@ -118,6 +119,7 @@ class GeneratedVersionTests {
     @Nested
     @DisplayName("Directory Tests")
     class DirectoryTests {
+
         private final File bar = new File("bar");
         private final File foo = new File("foo");
         private final GeneratedVersionOperation op = new GeneratedVersionOperation();
@@ -144,6 +146,7 @@ class GeneratedVersionTests {
     @Nested
     @DisplayName("Execution Tests")
     class ExecutionTests {
+
         @Test
         void example() throws Exception {
             new GeneratedVersionOperation()
@@ -187,6 +190,7 @@ class GeneratedVersionTests {
     @Nested
     @DisplayName("Template Tests")
     class TemplateTests {
+
         @Test
         void buildCustomTemplate() {
             var gv = new GeneratedVersion();

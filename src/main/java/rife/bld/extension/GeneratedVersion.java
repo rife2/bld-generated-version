@@ -18,6 +18,7 @@ package rife.bld.extension;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
+import rife.bld.extension.tools.IOTools;
 import rife.resources.ResourceFinderClasspath;
 import rife.resources.ResourceFinderDirectories;
 import rife.resources.ResourceFinderGroup;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
  * @since 1.0
  */
 public class GeneratedVersion {
+
     private static final String CLASSNAME = "className";
     private static final String EPOCH = "epoch";
     private static final String MAJOR = "major";
@@ -271,12 +273,8 @@ public class GeneratedVersion {
             classFile_ = new File(directory_, className_ + ".java");
         }
 
-        var parentFile = classFile_.getParentFile();
-        if (!parentFile.exists()) {
-            var dirs = parentFile.mkdirs();
-            if (!dirs && !parentFile.exists()) {
-                throw new IOException("Could not create project package directories: " + parentFile.getAbsolutePath());
-            }
+        if (!IOTools.mkdirs(classFile_.getParentFile())) {
+            throw new IOException("Could not create project package directories.");
         }
 
         try {
