@@ -26,9 +26,11 @@ public class SampleBuild extends Project {
         downloadSources = true;
 
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
+
+        var junit = version(6, 0, 3);
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(6, 0, 2)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(6, 0, 2)));
+                .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit));
     }
 
     public static void main(String[] args) {
