@@ -16,14 +16,15 @@
 
 package rife.bld.extension;
 
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * Generates a version data class for this project.
      */
     @Override
-    @SuppressWarnings({"PMD.PreserveStackTrace", "PMD.AvoidCatchingGenericException"})
+    @SuppressWarnings({"PMD.PreserveStackTrace"})
     @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
     public void execute() throws Exception {
         if (generatedVersion_.getProject() == null) {
@@ -50,21 +51,29 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
                 LOGGER.severe("A project must be specified.");
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
-        } else {
-            try {
-                var template = generatedVersion_.buildTemplate();
-                generatedVersion_.writeTemplate(template);
-                if (LOGGER.isLoggable(Level.INFO) && !silent()) {
-                    LOGGER.log(Level.INFO, "Generated version ({0}) class saved to: file://{1}",
-                            new String[]{generatedVersion_.getProject().version().toString(),
-                                    generatedVersion_.getClassFile().toURI().getPath()});
-                }
-            } catch (Exception e) {
-                if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                    LOGGER.severe(e.getMessage());
-                }
-                throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        }
+
+        if (generatedVersion_.getDirectory() == null) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.severe("A destination directory must be specified.");
             }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        }
+
+        try {
+            var template = generatedVersion_.buildTemplate();
+            generatedVersion_.writeTemplate(template);
+            if (LOGGER.isLoggable(Level.INFO) && !silent()) {
+                LOGGER.log(Level.INFO, "Generated version ({0}) class saved to: file://{1}",
+                        new Object[]{generatedVersion_.getProject().version().toString(),
+                                generatedVersion_.getClassFile().orElseThrow().toURI().getPath()}
+                );
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         }
     }
 
@@ -87,6 +96,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      */
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public GeneratedVersionOperation classTemplate(String template) {
+        Objects.requireNonNull(template, "The template path must not be null.");
         return classTemplate(new File(template));
     }
 
@@ -108,6 +118,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation classTemplate(Path template) {
+        Objects.requireNonNull(template, "The template path must not be null.");
         return classTemplate(template.toFile());
     }
 
@@ -119,6 +130,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      */
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public GeneratedVersionOperation directory(String directory) {
+        Objects.requireNonNull(directory, "The directory must not be null.");
         return directory(new File(directory));
     }
 
@@ -140,6 +152,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      */
     public GeneratedVersionOperation directory(Path directory) {
+        Objects.requireNonNull(directory, "The directory must not be null.");
         return directory(directory.toFile());
     }
 
@@ -156,11 +169,19 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Configure the operation from a {@link BaseProject}.
+     * <p>
+     * Sets the following {@link GeneratedVersion} options:
+     * <ul>
+     * <li>The {@link GeneratedVersion#setProject project} to the given project.</li>
+     * <li>The {@link GeneratedVersion#setDirectory destination directory} to the
+     * {@link BaseProject#srcMainJavaDirectory() project's main java source} directory.</li>
+     * </ul>
      *
      * @param project the project
      * @return this operation instance
      */
     public GeneratedVersionOperation fromProject(BaseProject project) {
+        Objects.requireNonNull(project, "The project must not be null.");
         generatedVersion_.setProject(project);
         generatedVersion_.setDirectory(project.srcMainJavaDirectory());
         return this;
@@ -168,6 +189,9 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     /**
      * Retrieves the generated version instance.
+     * <p>
+     * The returned object is intentionally mutable. It provides access to
+     * properties not directly exposed by this operation's fluent API.
      *
      * @return the generated version
      */

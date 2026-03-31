@@ -28,7 +28,10 @@ import rife.tools.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * GeneratedVersion data class.
@@ -47,6 +50,7 @@ public class GeneratedVersion {
     private static final String QUALIFIER = "qualifier";
     private static final String REVISION = "revision";
     private static final String VERSION = "version";
+
     private File classFile_;
     private String className_ = "GeneratedVersion";
     private File directory_;
@@ -59,13 +63,22 @@ public class GeneratedVersion {
     /**
      * Builds the template based on the {@link GeneratedVersion} data.
      *
+     * <p>Note: if {@code packageName} or {@code projectName} were not explicitly set,
+     * they are resolved from the project and cached on this instance.
+     *
      * @return the template
+     * @throws IllegalStateException if the project has not been set
      */
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public Template buildTemplate() {
-        Template template;
+        if (project_ == null) {
+            throw new IllegalStateException("Project must be set before calling buildTemplate().");
+        }
+
         var version = project_.version();
         TemplateFactory.TXT.resetClassLoader();
+
+        Template template;
         if (template_ == null) {
             var group = new ResourceFinderGroup().add(ResourceFinderClasspath.instance());
             template = TemplateFactory.TXT.setResourceFinder(group).get("default_generated_version");
@@ -74,16 +87,16 @@ public class GeneratedVersion {
             if (parent == null) {
                 parent = new File(template_.getAbsolutePath()).getParentFile();
             }
+            // [STYLE] Use var for non-native ResourceFinderGroup
             var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
             template = TemplateFactory.TXT.setResourceFinder(group).get(template_.getName());
         }
 
-        if (packageName_ == null) {
-            packageName_ = project_.pkg();
-        }
+        var resolvedPackage = (packageName_ != null) ? packageName_ : project_.pkg();
+        var resolvedProject = (projectName_ != null) ? projectName_ : project_.name();
 
         if (template.hasValueId(PACKAGE_NAME)) {
-            template.setValue(PACKAGE_NAME, packageName_);
+            template.setValue(PACKAGE_NAME, resolvedPackage);
         }
 
         if (template.hasValueId(CLASSNAME)) {
@@ -91,10 +104,7 @@ public class GeneratedVersion {
         }
 
         if (template.hasValueId(PROJECT)) {
-            if (projectName_ == null) {
-                projectName_ = project_.name();
-            }
-            template.setValue(PROJECT, projectName_);
+            template.setValue(PROJECT, resolvedProject);
         }
 
         if (template.hasValueId(EPOCH)) {
@@ -121,16 +131,20 @@ public class GeneratedVersion {
             template.setValue(QUALIFIER, version.qualifier());
         }
 
+        // Write back resolved values now that all logic has completed
+        packageName_ = resolvedPackage;
+        projectName_ = resolvedProject;
+
         return template;
     }
 
     /**
-     * Returns the class file.
+     * Returns the class file, or empty if {@link #writeTemplate} has not yet been called.
      *
-     * @return the class file
+     * @return the class file, or {@link Optional#empty()} if not yet written
      */
-    public File getClassFile() {
-        return classFile_;
+    public Optional<File> getClassFile() {
+        return Optional.ofNullable(classFile_);
     }
 
     /**
@@ -148,6 +162,7 @@ public class GeneratedVersion {
      * @param className the class name
      */
     public void setClassName(String className) {
+        Objects.requireNonNull(className, "The class name must not be null.");
         this.className_ = className;
     }
 
@@ -161,11 +176,12 @@ public class GeneratedVersion {
     }
 
     /**
-     * Set the destination directory.
+     * Sets the destination directory.
      *
      * @param directory the destination directory
      */
     public void setDirectory(File directory) {
+        Objects.requireNonNull(directory, "The directory must not be null.");
         this.directory_ = directory;
     }
 
@@ -181,9 +197,16 @@ public class GeneratedVersion {
     /**
      * Sets the file extension. (Default is: {@code .java})
      *
+     * <p>The extension must begin with a {@code .} character (e.g., {@code .java}, {@code .kt}).
+     *
      * @param extension the file extension
+     * @throws IllegalArgumentException if the extension does not start with '.'
      */
     public void setExtension(String extension) {
+        Objects.requireNonNull(extension, "The extension must not be null.");
+        if (!extension.startsWith(".")) {
+            throw new IllegalArgumentException("The extension must start with '.' (e.g., '.java')");
+        }
         this.extension_ = extension;
     }
 
@@ -202,6 +225,7 @@ public class GeneratedVersion {
      * @param packageName the package name
      */
     public void setPackageName(String packageName) {
+        Objects.requireNonNull(packageName, "The package name must not be null.");
         this.packageName_ = packageName;
     }
 
@@ -222,6 +246,7 @@ public class GeneratedVersion {
      */
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setProject(BaseProject project) {
+        Objects.requireNonNull(project, "The project must not be null.");
         this.project_ = project;
     }
 
@@ -240,13 +265,14 @@ public class GeneratedVersion {
      * @param projectName the project name
      */
     public void setProjectName(String projectName) {
+        Objects.requireNonNull(projectName, "The project name must not be null.");
         this.projectName_ = projectName;
     }
 
     /**
-     * Returns the template.
+     * Returns the template file.
      *
-     * @return the template
+     * @return the template file
      */
     public File getTemplate() {
         return template_;
@@ -258,19 +284,33 @@ public class GeneratedVersion {
      * @param template the template
      */
     public void setTemplate(File template) {
+        Objects.requireNonNull(template, "The template must not be null.");
         this.template_ = template;
     }
 
     /**
-     * Writes the project version class in the given directory.
+     * Writes the project version class to the configured directory.
+     *
+     * @param template the rendered template to write
+     * @throws IllegalStateException if the directory has not been set
+     * @throws IOException           if the file cannot be created or written
+     * @throws InvalidPathException  if the resolved path is invalid
      */
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-    public void writeTemplate(Template template) throws IOException {
+    public void writeTemplate(Template template) throws IOException, InvalidPathException {
+        if (directory_ == null) {
+            throw new IllegalStateException("Directory must be set before calling writeTemplate().");
+        }
+
         if (packageName_ != null) {
-            classFile_ = Path.of(directory_.getAbsolutePath(), packageName_.replace(".", File.separator),
-                    className_ + extension_).toFile();
+            var classPath = Path.of(
+                    directory_.getAbsolutePath(),
+                    packageName_.replace(".", File.separator),
+                    className_ + extension_
+            );
+            classFile_ = classPath.toFile();
         } else {
-            classFile_ = new File(directory_, className_ + ".java");
+            classFile_ = new File(directory_, className_ + extension_);
         }
 
         if (!IOTools.mkdirs(classFile_.getParentFile())) {
