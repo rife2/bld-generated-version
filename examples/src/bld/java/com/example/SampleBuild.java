@@ -6,8 +6,7 @@ import rife.bld.extension.GeneratedVersionOperation;
 
 import java.util.List;
 
-import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
-import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
+import static rife.bld.dependencies.Repository.*;
 import static rife.bld.dependencies.Scope.test;
 
 /**
@@ -25,7 +24,7 @@ public class SampleBuild extends Project {
         autoDownloadPurge = true;
         downloadSources = true;
 
-        repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
         var junit = version(6, 0, 3);
         scope(test)
