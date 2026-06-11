@@ -29,6 +29,7 @@ import rife.bld.Project;
 import rife.bld.blueprints.BaseProjectBlueprint;
 import rife.bld.dependencies.VersionNumber;
 import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.extension.tools.IOTools;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -45,7 +46,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
  * @since 1.0
  */
 @ExtendWith(LoggingExtension.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.SystemPrintln"})
 class GeneratedVersionOperationTest {
 
     @RegisterExtension
@@ -178,6 +179,7 @@ class GeneratedVersionOperationTest {
 
             var content = Files.readString(
                     Path.of(tmpDir.getAbsolutePath(), "com", "example", "GeneratedVersion.java"));
+            System.out.println(content);
             assertThat(content).contains("class GeneratedVersion");
         }
 
@@ -191,7 +193,9 @@ class GeneratedVersionOperationTest {
                     .execute();
 
             var template = Path.of(tmpDir.getAbsolutePath(), "com", "example", "GeneratedVersion.java");
-            assertThat(Files.readString(template)).doesNotContain("ERASED!");
+            var content = Files.readString(template);
+            System.out.println(content);
+            assertThat(content).doesNotContain("generated");
         }
 
         @Test
@@ -206,6 +210,7 @@ class GeneratedVersionOperationTest {
                     .execute();
 
             var content = Files.readString(new File(tmpDir, "MyVersion.java").toPath());
+            System.out.println(content);
             assertThat(content).contains("MAJOR = 2");
         }
 
@@ -221,7 +226,8 @@ class GeneratedVersionOperationTest {
                     .execute();
 
             var content = Files.readString(new File(tmpDir, "MyVersion.java").toPath());
-            assertThat(content).contains("PROJECT = \"MyExample\"");
+            System.out.println(content);
+            assertThat(content).contains("PROJECT = MyExample");
         }
 
         @Test
@@ -231,12 +237,74 @@ class GeneratedVersionOperationTest {
                     .fromProject(baseProject)
                     .directory(tmpDir.getAbsolutePath())
                     .className("MyVersion")
-                    .classTemplate("src/test/resources/foo/version_test.txt")
                     .packageName("")
                     .execute();
 
             var content = Files.readString(new File(tmpDir, "MyVersion.java").toPath());
+            System.out.println(content);
             assertThat(content).doesNotContain("package");
+        }
+
+        @Test
+        @DisplayName("execute produces annotation at expected location")
+        void executeProducesAnnotation() throws Exception {
+            new GeneratedVersionOperation()
+                    .fromProject(baseProject)
+                    .directory(tmpDir.getAbsolutePath())
+                    .generateAnnotation(true)
+                    .execute();
+
+            var pkg = "package com.example;";
+
+            var versionClass = IOTools.resolveFile(tmpDir, "com", "example", "GeneratedVersion.java");
+            assertThat(versionClass).exists();
+            var content = Files.readString(versionClass.toPath());
+            System.out.println(content);
+            assertThat(content)
+                    .as("version class should have a package").contains(pkg)
+                    .as("version class should be marked as generated").contains("@Generated");
+
+            var generatedClass = IOTools.resolveFile(tmpDir, "com", "example", "Generated.java");
+            assertThat(generatedClass).exists();
+            content = Files.readString(generatedClass.toPath());
+            System.out.println(content);
+            assertThat(content).as("annotation class should have a package").contains(pkg);
+        }
+
+        @Test
+        @DisplayName("execute produces annotation without package")
+        void executeProducesAnnotationNoPackage() throws Exception {
+            new GeneratedVersionOperation()
+                    .fromProject(baseProject)
+                    .directory(tmpDir.getAbsolutePath())
+                    .packageName("")
+                    .generateAnnotation(true)
+                    .execute();
+
+            var versionGlass = new File(tmpDir, "GeneratedVersion.java");
+            var content = Files.readString(versionGlass.toPath());
+            assertThat(content).as("version class should have no package").doesNotContain("package");
+
+            var generatedClass = new File(tmpDir, "Generated.java");
+            content = Files.readString(generatedClass.toPath());
+            assertThat(content).as("annotation class should have no package").doesNotContain("package");
+        }
+
+        @Test
+        @DisplayName("execute produces annotation once")
+        void executeProducesAnnotationOnlyOnce() throws Exception {
+            var op = new GeneratedVersionOperation()
+                    .fromProject(baseProject)
+                    .directory(tmpDir.getAbsolutePath())
+                    .generateAnnotation(true);
+            op.execute();
+
+            var generatedClass = IOTools.resolveFile(tmpDir, "com", "example", "Generated.java");
+            assertThat(generatedClass).exists();
+            var modificationDate = generatedClass.lastModified();
+
+            op.execute();
+            assertThat(generatedClass.lastModified()).isEqualTo(modificationDate);
         }
 
         @Test
@@ -251,6 +319,22 @@ class GeneratedVersionOperationTest {
                     .execute();
 
             assertThat(new File(tmpDir, "MyVersion.java")).exists();
+        }
+
+        @Test
+        @DisplayName("execute produce version file")
+        void executeProducesVersionFile() throws Exception {
+            var op = new GeneratedVersionOperation()
+                    .fromProject(baseProject)
+                    .directory(tmpDir.getAbsolutePath());
+            op.execute();
+
+            var versionClass = IOTools.resolveFile(tmpDir, "com", "example", "GeneratedVersion.java");
+            assertThat(versionClass).exists();
+
+            var content = Files.readString(versionClass.toPath());
+            System.out.println(content);
+            assertThat(content).doesNotContain("{{v generated/}}");
         }
     }
 

@@ -2,6 +2,7 @@ package {{v packageName/}};
 
 import java.util.Date;
 
+{{v generated/}}
 public final class {{v className/}} implements Comparable<{{v className/}}> {
     public static final String PROJECT = "{{v project/}}";
     public static final Date BUILD_DATE = new Date({{v epoch/}}L);

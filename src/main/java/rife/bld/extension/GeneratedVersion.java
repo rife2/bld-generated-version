@@ -23,11 +23,7 @@ import rife.bld.extension.testing.VisibleForTesting;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.extension.tools.ObjectTools;
 import rife.bld.extension.tools.TextTools;
-import rife.resources.ResourceFinderClasspath;
-import rife.resources.ResourceFinderDirectories;
-import rife.resources.ResourceFinderGroup;
 import rife.template.Template;
-import rife.template.TemplateFactory;
 import rife.tools.FileUtils;
 
 import javax.lang.model.SourceVersion;
@@ -35,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * GeneratedVersion data class.
@@ -45,19 +42,21 @@ import java.util.Optional;
 public class GeneratedVersion {
 
     private static final String CLASS_NAME = "className";
+    private static final Pattern CLEAN_TEMPLATE_PATTERN =
+            Pattern.compile("(?m)^[ \\t]*\\{\\{v \\w+\\s*/}}[ \\t]*\\R");
     private static final String EPOCH = "epoch";
+    private static final String JAVA_EXTENSION = ".java";
     private static final String MAJOR = "major";
     private static final String MINOR = "minor";
+    private static final String PACKAGE = "package";
     private static final String PACKAGE_NAME = "packageName";
     private static final String PROJECT = "project";
     private static final String QUALIFIER = "qualifier";
     private static final String REVISION = "revision";
     private static final String VERSION = "version";
-
-    private File classFile_;
     private String className_ = "GeneratedVersion";
     private File directory_;
-    private String extension_ = ".java";
+    private String extension_ = JAVA_EXTENSION;
     private String packageName_;
     private String projectName_;
     private BaseProject project_;
@@ -86,7 +85,6 @@ public class GeneratedVersion {
         }
         this.className_ = className;
     }
-
 
     /**
      * Returns the destination directory.
@@ -162,7 +160,6 @@ public class GeneratedVersion {
         this.packageName_ = packageName;
     }
 
-
     /**
      * Returns the project.
      *
@@ -224,8 +221,14 @@ public class GeneratedVersion {
         this.template_ = template;
     }
 
+    private String cleanTemplate(Template template) {
+        var rendered = template.getContent();
+        return CLEAN_TEMPLATE_PATTERN.matcher(rendered).replaceAll("");
+    }
+
+
     /**
-     * Builds the template based on the {@link GeneratedVersion} data.
+     * Fills the template based on the {@link GeneratedVersion} data.
      *
      * <p>Note: if {@code packageName} or {@code projectName} were not explicitly set,
      * they are resolved from the project for this template only.
@@ -234,24 +237,19 @@ public class GeneratedVersion {
      * @throws NullPointerException if the project has not been set
      */
     @VisibleForTesting
-    Template buildTemplate() {
+    Template fillTemplate(Template template) {
+        ObjectTools.requireNonNull(template, "template");
         ObjectTools.requireNonNull(project_, PROJECT);
 
-        var version = project_.version();
-        TemplateFactory.TXT.resetClassLoader();
-
-        Template template;
-        if (template_ == null) {
-            var group = new ResourceFinderGroup().add(ResourceFinderClasspath.instance());
-            template = TemplateFactory.TXT.setResourceFinder(group).get("default_generated_version");
-        } else {
-            var parent = template_.getAbsoluteFile().getParentFile();
-            var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
-            template = TemplateFactory.TXT.setResourceFinder(group).get(template_.getName());
-        }
+        var version = ObjectTools.requireNonNull(project_.version(), VERSION);
 
         var resolvedPackage = (packageName_ != null) ? packageName_ : project_.pkg();
         var resolvedProject = (projectName_ != null) ? projectName_ : project_.name();
+
+        // Skip package declaration if blank
+        if (template.hasValueId(PACKAGE) && TextTools.isNotBlank(resolvedPackage)) {
+            template.setValue(PACKAGE, PACKAGE + ' ' + resolvedPackage + ';');
+        }
 
         if (template.hasValueId(PACKAGE_NAME)) {
             template.setValue(PACKAGE_NAME, resolvedPackage);
@@ -286,28 +284,70 @@ public class GeneratedVersion {
         }
 
         if (template.hasValueId(QUALIFIER)) {
-            template.setValue(QUALIFIER, version.qualifier());
+            if (TextTools.isNotBlank(version.qualifier())) {
+                template.setValue(QUALIFIER, version.qualifier());
+            } else {
+                template.blankValue(QUALIFIER);
+            }
         }
 
         return template;
     }
 
     /**
-     * Returns the class file, or empty if {@link #writeTemplate} has not yet been called.
+     * Resolves the target file path for a given file name, using the configured
+     * directory and package, without writing anything.
      *
-     * @return the class file, or {@link Optional#empty()} if not yet written
+     * @param fileName the file name, including extension
+     * @return the resolved file
      */
-    protected Optional<File> getClassFile() {
-        return Optional.ofNullable(classFile_);
+    Optional<File> resolveClassFile(String fileName) {
+        if (directory_ == null) {
+            return Optional.empty();
+        }
+        var resolvedPackage = (packageName_ != null) ? packageName_
+                : (project_ != null ? project_.pkg() : null);
+        Path classPath;
+        if (TextTools.isNotEmpty(resolvedPackage)) {
+            classPath = Path.of(
+                    directory_.getAbsolutePath(),
+                    resolvedPackage.replace(".", File.separator),
+                    fileName
+            );
+        } else {
+            classPath = Path.of(directory_.getAbsolutePath(), fileName);
+        }
+        return Optional.of(classPath.toFile());
     }
 
     /**
      * Writes the project version class to the configured directory.
      *
      * @param template the rendered template to write
-     * @throws IOException if the class file cannot be created or written
+     * @return {@code Optional<File>} containing the written file if created
+     * @throws NullPointerException if the template, project or directory have not been set
+     * @throws IOException          if the class file cannot be created or written
      */
-    protected void writeTemplate(Template template) throws IOException {
+    Optional<File> writeTemplate(Template template) throws IOException {
+        return writeTemplate(template, className_ + extension_, true);
+    }
+
+    /**
+     * Writes a class file to the configured directory.
+     *
+     * @param template  the rendered template to write
+     * @param fileName  the class file name, including the extension
+     * @param overwrite {@code true} to overwrite the class file if it exists; {@code false} otherwise
+     * @return {@code Optional<File>} containing the written file if created or overwritten;
+     * {@code Optional.empty()} if skipped because the file exists and {@code overwrite} is false
+     * @throws NullPointerException if the template, project or directory have not been set
+     * @throws IOException          if the class file cannot be created or written
+     */
+    Optional<File> writeTemplate(Template template, String fileName, boolean overwrite) throws IOException {
+        ObjectTools.requireNonNull(template, "template");
+        ObjectTools.requireNonNull(project_, PROJECT);
+        ObjectTools.requireNonNull(directory_, "directory");
+
         var resolvedPackage = (packageName_ != null) ? packageName_ : project_.pkg();
 
         Path classPath;
@@ -315,24 +355,35 @@ public class GeneratedVersion {
             classPath = Path.of(
                     directory_.getAbsolutePath(),
                     resolvedPackage.replace(".", File.separator),
-                    className_ + extension_
+                    fileName
             );
         } else {
-            classPath = Path.of(directory_.getAbsolutePath(), className_ + extension_);
-        }
-        classFile_ = classPath.toFile();
-
-        var parent = classFile_.getParentFile();
-        try {
-            IOTools.createDirs(parent);
-        } catch (IOException e) {
-            throw new IOException("Could not create project package directories: " + parent, e);
+            classPath = Path.of(directory_.getAbsolutePath(), fileName);
         }
 
-        try {
-            FileUtils.writeString(template.getContent(), classFile_);
-        } catch (IOException e) {
-            throw new IOException("Unable to write the version class file: " + classFile_, e);
+        var targetFile = classPath.toFile();
+
+        // Skip if file exists and we don't want to overwrite
+        if (!overwrite && targetFile.exists()) {
+            return Optional.empty(); // skipped, nothing written
         }
+
+        // Ensure parent directories exist before writing
+        var parent = targetFile.getParentFile();
+        if (parent != null && !parent.exists()) {
+            try {
+                IOTools.createDirs(parent);
+            } catch (IOException e) {
+                throw new IOException("Could not create destination directories: " + parent, e);
+            }
+        }
+
+        try {
+            FileUtils.writeString(cleanTemplate(template), targetFile);
+        } catch (IOException e) {
+            throw new IOException("Unable to write class file: " + targetFile, e);
+        }
+
+        return Optional.of(targetFile); // wrote or overwrote
     }
 }

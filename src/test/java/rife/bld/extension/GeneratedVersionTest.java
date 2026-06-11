@@ -20,8 +20,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import rife.bld.Project;
 import rife.bld.dependencies.VersionNumber;
+import rife.bld.extension.tools.IOTools;
+import rife.resources.ResourceFinderDirectories;
+import rife.resources.ResourceFinderGroup;
+import rife.template.Template;
+import rife.template.TemplateFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,136 +36,37 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertTrue;
 
-/**
- * Unit tests for {@link GeneratedVersion} in isolation.
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
- */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "DataFlowIssue"})
 class GeneratedVersionTest {
 
-    private final Project project = new Project() {
-        @Override
-        public String pkg() {
-            return "com.example";
-        }
-
-        @Override
-        public String name() {
-            return "MyExample";
-        }
-
-        @Override
-        public VersionNumber version() {
-            return new VersionNumber(2, 1, 3);
-        }
-    };
-
     @Nested
-    @DisplayName("buildTemplate Tests")
-    class BuildTemplateTests {
+    @DisplayName("ClassName Tests")
+    class ClassNameTests {
 
-        @Test
-        @DisplayName("buildTemplate does not mutate packageName")
-        void buildTemplateDoesNotMutatePackageName() {
+        @ParameterizedTest
+        @ValueSource(strings = {"MyVersion", "_Valid", "$Valid", "A1"})
+        @DisplayName("setClassName accepts valid identifiers")
+        void setClassNameAcceptsValid(String name) {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setPackageName("com.custom");
-            gv.buildTemplate();
-            assertThat(gv.getPackageName()).isEqualTo("com.custom");
+            assertThatNoException().isThrownBy(() -> gv.setClassName(name));
+            assertThat(gv.getClassName()).isEqualTo(name);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"123Bad", "com.bad", "My Class", "synchronized"})
+        @DisplayName("setClassName rejects invalid identifiers")
+        void setClassNameRejectsInvalid(String name) {
+            var gv = new GeneratedVersion();
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> gv.setClassName(name))
+                    .withMessageStartingWith("Invalid class name:");
         }
 
         @Test
-        @DisplayName("buildTemplate does not mutate projectName")
-        void buildTemplateDoesNotMutateProjectName() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setProjectName("Custom App");
-            gv.buildTemplate();
-            assertThat(gv.getProjectName()).isEqualTo("Custom App");
-        }
-
-        @Test
-        @DisplayName("buildTemplate leaves packageName null when not set")
-        void buildTemplateLeavesPackageNameNull() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.buildTemplate();
-            assertThat(gv.getPackageName()).isNull();
-        }
-
-        @Test
-        @DisplayName("buildTemplate leaves projectName null when not set")
-        void buildTemplateLeavesProjectNameNull() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.buildTemplate();
-            assertThat(gv.getProjectName()).isNull();
-        }
-
-        @Test
-        @DisplayName("returns non-null template when project is set")
-        void returnsTemplate() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            assertThat(gv.buildTemplate()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("template content includes project name")
-        void templateContentContainsProjectName() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            var t = gv.buildTemplate();
-            assertThat(t.getContent()).contains("PROJECT = \"MyExample\"");
-        }
-
-        @Test
-        @DisplayName("template content includes correct version parts")
-        void templateContentContainsVersionParts() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            var t = gv.buildTemplate();
-            assertThat(t.getContent()).contains("MAJOR = 2").contains("MINOR = 1").contains("REVISION = 3");
-        }
-
-        @Test
-        @DisplayName("template content uses explicit packageName when set")
-        void templateContentUsesExplicitPackageName() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setPackageName("org.custom");
-            var t = gv.buildTemplate();
-            assertThat(t.getContent()).contains("package org.custom");
-        }
-
-        @Test
-        @DisplayName("template content includes explicit projectName when set")
-        void templateContentUsesExplicitProjectName() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setProjectName("CustomApp");
-            var t = gv.buildTemplate();
-            assertThat(t.getContent()).contains("PROJECT = \"CustomApp\"");
-        }
-
-        @Test
-        @DisplayName("template content uses project package when packageName not set")
-        void templateContentUsesProjectPackage() {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            var t = gv.buildTemplate();
-            assertThat(t.getContent()).contains("package com.example");
-        }
-
-        @Test
-        @DisplayName("throws NPE when project is not set")
-        void throwsWhenProjectIsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(gv::buildTemplate);
+        @DisplayName("setClassName rejects null")
+        void setClassNameRejectsNull() {
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setClassName(null));
         }
     }
 
@@ -169,100 +77,164 @@ class GeneratedVersionTest {
         @Test
         @DisplayName("default extension is .java")
         void defaultExtensionIsJava() {
-            var gv = new GeneratedVersion();
-            assertThat(gv.getExtension()).isEqualTo(".java");
+            assertThat(new GeneratedVersion().getExtension()).isEqualTo(".java");
         }
 
         @Test
-        @DisplayName("setExtension accepts value with leading dot")
+        @DisplayName("setExtension accepts value with leading dot and trims")
         void setExtensionAcceptsDotPrefix() {
             var gv = new GeneratedVersion();
-            gv.setExtension(".kt");
+            gv.setExtension("  .kt  ");
             assertThat(gv.getExtension()).isEqualTo(".kt");
         }
 
-        @Test
-        @DisplayName("setExtension rejects value without leading dot")
-        void setExtensionRejectsMissingDot() {
+        @ParameterizedTest
+        @ValueSource(strings = {"java", ".", " ", ""})
+        @DisplayName("setExtension rejects invalid values")
+        void setExtensionRejectsInvalid(String ext) {
             var gv = new GeneratedVersion();
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setExtension("java"));
-        }
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Nested
-    @DisplayName("Null Safety Tests")
-    class NullSafetyTests {
-
-        @Test
-        @DisplayName("setClassName accepts valid identifiers")
-        void setClassNameAcceptsValid() {
-            var gv = new GeneratedVersion();
-            assertThatNoException().isThrownBy(() -> gv.setClassName("MyVersion"));
-            assertThatNoException().isThrownBy(() -> gv.setClassName("_Valid"));
-            assertThatNoException().isThrownBy(() -> gv.setClassName("$Valid"));
-            assertThat(gv.getClassName()).isEqualTo("$Valid");
-        }
-
-        @Test
-        @DisplayName("setClassName rejects invalid identifiers")
-        void setClassNameRejectsInvalid() {
-            var gv = new GeneratedVersion();
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName("123Bad"));
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName("com.bad"));
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName("My Class"));
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName("synchronized"));
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName(""));
-            assertThatIllegalArgumentException().isThrownBy(() -> gv.setClassName(" "));
-        }
-
-        @Test
-        @DisplayName("setClassName rejects null")
-        void setClassNameRejectsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setClassName(null));
-        }
-
-        @Test
-        @DisplayName("setDirectory rejects null")
-        void setDirectoryRejectsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setDirectory(null));
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> gv.setExtension(ext))
+                    .withMessageContaining("Extension must be '.'");
         }
 
         @Test
         @DisplayName("setExtension rejects null")
         void setExtensionRejectsNull() {
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setExtension(null));
+        }
+    }
+
+    @Nested
+    @DisplayName("FillTemplate Tests")
+    class FillTemplateTests {
+
+        @Test
+        @DisplayName("fillTemplate blanks qualify")
+        void fillTemplateBlanksQualifier() {
             var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setExtension(null));
+            gv.setProject(project(new VersionNumber(1, 0, 0))); // no qualifier
+
+            var tpl = template();
+
+            gv.fillTemplate(tpl);
+
+            assertThat(tpl.getValue("qualifier")).isBlank();
         }
 
         @Test
-        @DisplayName("setPackageName rejects null")
-        void setPackageNameRejectsNull() {
+        @DisplayName("fillTemplate requires template and project")
+        void fillTemplateRequiresArgs() {
             var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setPackageName(null));
+            assertThatNullPointerException().isThrownBy(() -> gv.fillTemplate(null));
+            assertThatNullPointerException().isThrownBy(() -> gv.fillTemplate(template()));
         }
 
         @Test
-        @DisplayName("setProjectName rejects null")
+        @DisplayName("fillTemplate resolves package/project from project when unset")
+        void fillTemplateResolvesFromProject() {
+            var gv = new GeneratedVersion();
+            gv.setProject(project(new VersionNumber(2, 0, 0)));
+
+            var tpl = template();
+            tpl.setValue("packageName", "");
+            tpl.setValue("project", "");
+
+            gv.fillTemplate(tpl);
+
+            assertThat(tpl.getValue("packageName")).isEqualTo("com.example");
+            assertThat(tpl.getValue("project")).isEqualTo("test-app");
+        }
+
+        @Test
+        @DisplayName("fillTemplate sets non-blank qualifier")
+        void fillTemplateSetsQualifier() {
+            var gv = new GeneratedVersion();
+            gv.setProject(project(new VersionNumber(1, 0, 0, "SNAPSHOT")));
+
+            var tpl = template();
+            tpl.setValue("qualifier", "");
+
+            gv.fillTemplate(tpl);
+
+            assertThat(tpl.getValue("qualifier")).isEqualTo("SNAPSHOT");
+        }
+
+        @Test
+        @DisplayName("fillTemplate sets all standard values")
+        void fillTemplateSetsValues() {
+            var gv = new GeneratedVersion();
+            gv.setProject(project(new VersionNumber(1, 2, 3)));
+            gv.setClassName("AppVersion");
+            gv.setPackageName("com.test");
+
+            var tpl = template();
+            tpl.setValue("package", "");
+            tpl.setValue("packageName", "");
+            tpl.setValue("className", "");
+            tpl.setValue("project", "");
+            tpl.setValue("version", "");
+            tpl.setValue("major", "");
+            tpl.setValue("minor", "");
+            tpl.setValue("revision", "");
+            tpl.setValue("epoch", "");
+
+            gv.fillTemplate(tpl);
+
+            assertThat(tpl.getValue("package")).contains("package com.test;");
+            assertThat(tpl.getValue("packageName")).isEqualTo("com.test");
+            assertThat(tpl.getValue("className")).isEqualTo("AppVersion");
+            assertThat(tpl.getValue("project")).isEqualTo("test-app");
+            assertThat(tpl.getValue("version")).isEqualTo("1.2.3");
+            assertThat(tpl.getValue("major")).isEqualTo("1");
+            assertThat(tpl.getValue("minor")).isEqualTo("2");
+            assertThat(tpl.getValue("revision")).isEqualTo("3");
+            assertThat(tpl.getValue("epoch")).matches("\\d{13}"); // millis
+        }
+
+        @SuppressWarnings("PMD.CallSuperInConstructor")
+        private Project project(VersionNumber versionNumber) {
+            class TestProject extends Project {
+
+                TestProject() {
+                    name = "test-app";
+                    pkg = "com.example";
+                    version = versionNumber;
+                }
+            }
+            return new TestProject();
+        }
+
+        private Template template() {
+            var group = new ResourceFinderGroup().add(
+                    new ResourceFinderDirectories(
+                            IOTools.resolveFile(new File("src"), "test", "resources", "foo")));
+            return TemplateFactory.TXT.setResourceFinder(group).get("version_test");
+        }
+    }
+
+    @Nested
+    @DisplayName("Null Safety Tests")
+    class NullSafetyTests {
+
+        @Test
+        void setDirectoryRejectsNull() {
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setDirectory(null));
+        }
+
+        @Test
         void setProjectNameRejectsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setProjectName(null));
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setProjectName(null));
         }
 
         @Test
-        @DisplayName("setProject rejects null")
         void setProjectRejectsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setProject(null));
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setProject(null));
         }
 
         @Test
-        @DisplayName("setTemplate rejects null")
         void setTemplateRejectsNull() {
-            var gv = new GeneratedVersion();
-            assertThatNullPointerException().isThrownBy(() -> gv.setTemplate(null));
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setTemplate(null));
         }
     }
 
@@ -274,147 +246,129 @@ class GeneratedVersionTest {
         @DisplayName("setPackageName accepts empty string for default package")
         void setPackageNameAcceptsEmpty() {
             var gv = new GeneratedVersion();
-            assertThatNoException().isThrownBy(() -> gv.setPackageName(""));
+            gv.setPackageName("");
             assertThat(gv.getPackageName()).isEmpty();
         }
 
-        @Test
+        @ParameterizedTest
+        @ValueSource(strings = {"123bad", "com.class", "com..bad"})
         @DisplayName("setPackageName rejects invalid package")
-        void setPackageNameRejectsInvalid() {
+        void setPackageNameRejectsInvalid(String pkg) {
             var gv = new GeneratedVersion();
             assertThatIllegalArgumentException()
-                    .isThrownBy(() -> gv.setPackageName("com..bad"));
-            assertThatIllegalArgumentException()
-                    .isThrownBy(() -> gv.setPackageName("123bad"));
-            assertThatIllegalArgumentException()
-                    .isThrownBy(() -> gv.setPackageName("com.class"));
+                    .isThrownBy(() -> gv.setPackageName(pkg))
+                    .withMessageStartingWith("Invalid package name:");
+        }
+
+        @Test
+        @DisplayName("setPackageName rejects null")
+        void setPackageNameRejectsNull() {
+            assertThatNullPointerException().isThrownBy(() -> new GeneratedVersion().setPackageName(null));
         }
     }
 
     @Nested
-    @DisplayName("writeTemplate Tests")
+    @DisplayName("WriteTemplate Tests")
     class WriteTemplateTests {
 
-        @TempDir
-        File tmpDir;
+        @SuppressWarnings("PMD.CallSuperInConstructor")
+        private Project project() {
+            class TestProject extends Project {
 
-        @Test
-        @DisplayName("classFile is empty before writeTemplate is called")
-        void classFileEmptyBeforeWrite() {
-            var gv = new GeneratedVersion();
-            assertThat(gv.getClassFile()).isEmpty();
+                TestProject() {
+                    name = "app";
+                    pkg = "com.test";
+                    version = new VersionNumber(1, 0, 0);
+                }
+            }
+            return new TestProject();
+        }
+
+        private Template simpleTpl() {
+            var group = new ResourceFinderGroup().add(
+                    new ResourceFinderDirectories(
+                            IOTools.resolveFile(new File("src"), "test", "resources")));
+            return TemplateFactory.TXT.setResourceFinder(group).get("version_simple_test");
         }
 
         @Test
-        @DisplayName("classFile is present after writeTemplate is called")
-        void classFilePresentAfterWrite() throws IOException {
+        @DisplayName("writeTemplate creates file with package path")
+        void writeTemplateCreatesFile(@TempDir Path dir) throws IOException {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile()).isPresent();
+            gv.setProject(project());
+            gv.setDirectory(dir.toFile());
+            gv.setPackageName("com.test");
+            gv.setClassName("Version");
+
+            var tpl = simpleTpl();
+            tpl.setValue("className", "Version");
+
+            var created = gv.writeTemplate(tpl);
+
+            assertThat(created).isPresent();
+            assertThat(dir.resolve("com/test/Version.java")).exists().content()
+                    .isEqualTo("public final class Version { }");
         }
 
         @Test
-        @DisplayName("throws NPE when directory or project is not set")
-        void throwsWhenRequiredFieldsNull() {
+        @DisplayName("writeTemplate handles default package")
+        void writeTemplateDefaultPackage(@TempDir Path dir) throws IOException {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            var t = gv.buildTemplate();
-            assertThatNullPointerException().isThrownBy(() -> gv.writeTemplate(t));
-        }
-
-        @Test
-        @DisplayName("writeTemplate creates parent directories")
-        void writeTemplateCreatesParentDirs() throws IOException {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.setPackageName("deep.nested.pkg");
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().getParentFile()).exists();
-        }
-
-        @Test
-        @DisplayName("writeTemplate throws IOException on write failure")
-        void writeTemplateThrowsOnWriteFailure(@TempDir Path tempDir) throws IOException {
-            var readOnly = tempDir.resolve("ro");
-            Files.createDirectory(readOnly);
-            assertTrue(readOnly.toFile().setReadOnly());
-
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(readOnly.toFile());
-            var template = gv.buildTemplate();
-            assertThatIOException().isThrownBy(() -> gv.writeTemplate(template))
-                    .withMessageContaining("Could not create project package directories");
-        }
-
-        @Test
-        @DisplayName("writeTemplate uses explicit packageName when set")
-        void writeTemplateUsesExplicitPackageName() throws IOException {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.setPackageName("org.foo");
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().toPath())
-                    .startsWith(tmpDir.toPath().resolve("org/foo"));
-        }
-
-        @Test
-        @DisplayName("writeTemplate uses project package when packageName not set")
-        void writeTemplateUsesProjectPackage() throws IOException {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().toPath())
-                    .startsWith(tmpDir.toPath().resolve("com/example"));
-        }
-
-        @Test
-        @DisplayName("writeTemplate writes to root when packageName is empty")
-        void writeTemplateWritesToRootWhenPackageEmpty() throws IOException {
-            var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
+            gv.setProject(project());
+            gv.setDirectory(dir.toFile());
             gv.setPackageName("");
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().getParentFile())
-                    .isEqualTo(tmpDir);
+            gv.setClassName("Version");
+
+            gv.writeTemplate(simpleTpl());
+
+            assertThat(dir.resolve("Version.java")).exists();
         }
 
         @Test
-        @DisplayName("written class file exists on disk")
-        void writtenFileExistsOnDisk() throws IOException {
+        @DisplayName("writeTemplate overwrite=false skips existing file")
+        void writeTemplateOverwriteFalse(@TempDir Path dir) throws IOException {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow()).exists();
+            gv.setProject(project());
+            gv.setDirectory(dir.toFile());
+            gv.setClassName("Version");
+
+            Files.createDirectories(dir.resolve("com/test"));
+            var existing = dir.resolve("com/test/Version.java");
+            Files.writeString(existing, "OLD");
+
+            var created = gv.writeTemplate(simpleTpl(), "Version.java", false);
+
+            assertThat(created).isNotPresent();
+            assertThat(existing).content().isEqualTo("OLD");
         }
 
         @Test
-        @DisplayName("written file uses custom className in filename")
-        void writtenFileUsesCustomClassName() throws IOException {
+        @DisplayName("writeTemplate overwrite=true replaces existing file")
+        void writeTemplateOverwriteTrue(@TempDir Path dir) throws IOException {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.setClassName("AppVersion");
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().getName()).startsWith("AppVersion");
+            gv.setProject(project());
+            gv.setDirectory(dir.toFile());
+            gv.setClassName("Version");
+
+            var tpl = simpleTpl();
+            tpl.setValue("className", "Version");
+
+            gv.writeTemplate(tpl); // first write
+            var second = gv.writeTemplate(tpl); // overwrite
+
+            assertThat(second).isPresent();
+            assertThat(dir.resolve("com/test/Version.java")).content()
+                    .isEqualTo("public final class Version { }");
         }
 
         @Test
-        @DisplayName("written file uses custom extension when packageName is null")
-        void writtenFileUsesCustomExtensionWithoutPackage() throws IOException {
+        @DisplayName("writeTemplate requires template, project, directory")
+        void writeTemplateRequiresArgs() {
             var gv = new GeneratedVersion();
-            gv.setProject(project);
-            gv.setDirectory(tmpDir);
-            gv.setExtension(".kt");
-            gv.writeTemplate(gv.buildTemplate());
-            assertThat(gv.getClassFile().orElseThrow().getName()).endsWith(".kt");
+            assertThatNullPointerException().isThrownBy(() -> gv.writeTemplate(null));
+
+            gv.setProject(project());
+            assertThatNullPointerException().isThrownBy(() -> gv.writeTemplate(simpleTpl()));
         }
     }
 }

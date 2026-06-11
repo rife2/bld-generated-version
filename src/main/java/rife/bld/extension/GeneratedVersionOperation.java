@@ -22,10 +22,16 @@ import rife.bld.BaseProject;
 import rife.bld.extension.tools.ObjectTools;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
+import rife.resources.ResourceFinderClasspath;
+import rife.resources.ResourceFinderDirectories;
+import rife.resources.ResourceFinderGroup;
+import rife.template.Template;
+import rife.template.TemplateFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,43 +41,38 @@ import java.util.logging.Logger;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@SuppressFBWarnings(
-        value = "EI_EXPOSE_REP",
-        justification = "Intentional: generatedVersion() exposes the mutable delegate by design"
-)
 public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersionOperation> {
 
+    private static final String GENERATED = "generated";
     private static final Logger logger = Logger.getLogger(GeneratedVersionOperation.class.getName());
     private final GeneratedVersion generatedVersion_ = new GeneratedVersion();
+    private boolean generateAnnotation_;
 
-    /**
-     * Generates a version data class for this project.
-     *
-     * @throws NullPointerException if the {@link #fromProject(BaseProject) project}, {@link #directory(File) directory}
-     *                              or {@link #className(String) className} are {@code null}
-     * @throws Exception            when an exception occurs during the execution
-     */
     @Override
     @SuppressWarnings("PMD.PreserveStackTrace")
-    @SuppressFBWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE",
-            justification = "Stack trace is preserved in the log; ExitStatusException signals CLI exit code only")
-    public void execute() throws Exception {
+    public void execute() throws ExitStatusException {
         ObjectTools.requireNonNull(generatedVersion_.getProject(), "project");
         ObjectTools.requireNonNull(generatedVersion_.getDirectory(), "directory");
         ObjectTools.requireNotEmpty(generatedVersion_.getClassName(), "class name");
 
         try {
-            var template = generatedVersion_.buildTemplate();
-            generatedVersion_.writeTemplate(template);
-            if (logger.isLoggable(Level.INFO) && !silent()) {
+            var versionTemplate = generatedVersion_.fillTemplate(findVersionTemplate());
+
+            createAnnotation(versionTemplate);
+
+            var versionFile = generatedVersion_.writeTemplate(versionTemplate)
+                    .orElseThrow(() -> new IOException("Version class could not be written"));
+
+            if (!silent() && logger.isLoggable(Level.INFO)) {
                 logger.log(Level.INFO, "Generated version ({0}) class saved to: {1}",
-                        new Object[]{generatedVersion_.getProject().version(),
-                                generatedVersion_.getClassFile().orElseThrow().toURI()}
-                );
+                        new Object[]{
+                                generatedVersion_.getProject().version(),
+                                versionFile.toURI()
+                        });
             }
         } catch (IOException e) {
-            if (logger.isLoggable(Level.SEVERE) && !silent()) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
+            if (!silent() && logger.isLoggable(Level.SEVERE)) {
+                logger.log(Level.SEVERE, "Failed to generate version class", e);
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         }
@@ -98,7 +99,6 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @throws NullPointerException     if {@code template} is {@code null}
      * @throws IllegalArgumentException if {@code template} is empty
      */
-    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public GeneratedVersionOperation classTemplate(@NonNull String template) {
         ObjectTools.requireNotEmpty(template, "template");
         return classTemplate(new File(template));
@@ -135,7 +135,6 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code directory} is {@code null}
      */
-    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public GeneratedVersionOperation directory(@NonNull String directory) {
         ObjectTools.requireNonNull(directory, "directory");
         return directory(new File(directory));
@@ -206,6 +205,19 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     }
 
     /**
+     * Determines if the {@code Generated} annotation class file should be created.
+     * <p>
+     * The class file is not overwritten if it already exists.
+     *
+     * @param generate {@code true} to generate the annotation; {@code false} otherwise
+     * @return this operation instance
+     */
+    public GeneratedVersionOperation generateAnnotation(boolean generate) {
+        generateAnnotation_ = generate;
+        return this;
+    }
+
+    /**
      * Retrieves the generated version instance.
      * <p>
      * The returned object is intentionally mutable. It provides access to
@@ -213,6 +225,8 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      *
      * @return the generated version
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP",
+            justification = "Intentional: caller receives a mutable reference by design.")
     public GeneratedVersion generatedVersion() {
         return generatedVersion_;
     }
@@ -239,5 +253,58 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
     public GeneratedVersionOperation projectName(@NonNull String projectName) {
         generatedVersion_.setProjectName(projectName);
         return this;
+    }
+
+    private void createAnnotation(Template versionTemplate) throws IOException {
+        if (!generateAnnotation_) {
+            return;
+        }
+
+        var annotationTemplate =
+                generatedVersion_.fillTemplate(findResourceTemplate("generated_annotation"));
+
+        Optional<File> annotationFile =
+                generatedVersion_.writeTemplate(annotationTemplate, "Generated.java", false);
+
+        if (!silent() && logger.isLoggable(Level.INFO)) {
+            annotationFile.ifPresent(file ->
+                    logger.log(Level.INFO, "Generated annotation class saved to: {0}", file.toURI()));
+        }
+
+        // Inject @Generated if the annotation class exists on disk (written now or previously)
+        var annotationTarget = annotationFile
+                .or(() -> generatedVersion_.resolveClassFile("Generated.java"));
+        if (annotationTarget.map(File::exists).orElse(false)
+                && versionTemplate.hasValueId(GENERATED)) {
+            versionTemplate.setValue(GENERATED, "@Generated");
+        }
+    }
+
+    /**
+     * Find the given template in the project resources.
+     *
+     * @param templateName the template name to find
+     * @return the found template
+     */
+    private Template findResourceTemplate(String templateName) {
+        var group = new ResourceFinderGroup().add(ResourceFinderClasspath.instance());
+        return TemplateFactory.TXT.setResourceFinder(group).get(templateName);
+    }
+
+    /**
+     * Finds the {@link GeneratedVersion#getTemplate() version template} or use the default template.
+     *
+     * @return the version templates
+     */
+    private Template findVersionTemplate() {
+        var customTemplate = generatedVersion_.getTemplate();
+        if (customTemplate == null) {
+            return findResourceTemplate("default_generated_version");
+        } else {
+            var file = customTemplate.getAbsoluteFile();
+            var parent = file.getParentFile() != null ? file.getParentFile() : new File(".");
+            var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
+            return TemplateFactory.TXT.setResourceFinder(group).get(file.getName());
+        }
     }
 }

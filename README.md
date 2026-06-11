@@ -18,7 +18,10 @@ For more information, please refer to the [extensions](https://github.com/rife2/
 
 ## Generate Version Data Class
 
-To automatically create a generated version class using the default template in your project on compile, add the following to your build file:
+To automatically create a generated version class using the default template in your project on compile,
+
+add the following to your build file:
+
 ```java
 @Override
 public void compile() throws Exception {
@@ -40,15 +43,18 @@ public void genver() throws Exception {
 
 - [View Examples](https://github.com/rife2/bld-generated-version/tree/master/examples)
 
+Please check the [GeneratedVersionOperation documentation](https://rife2.github.io/bld-generated-version/rife/bld/extension/GeneratedVersionOperation.html#method-summary) for all available configuration options.
+
 ## Version Class Template
 
 This is the default template:
 
 ```java
-package {{v packageName/}};
+{{v package/}}
 
 import java.util.Date;
 
+{{v generated/}}
 public final class {{v className/}} {
     public static final String PROJECT = "{{v project/}}";
     public static final Date BUILD_DATE = new Date({{v epoch/}}L);
@@ -99,5 +105,22 @@ public final class {{v className/}} {
 }
 ```
 
+## Generated Annotation
 
-Please check the [GeneratedVersionOperation documentation](https://rife2.github.io/bld-generated-version/rife/bld/extension/GeneratedVersionOperation.html#method-summary) for all available configuration options.
+The extension can also create a `@Generated` Java annotation that you can apply to the version class.
+
+Tools and IDEs use this annotation to suppress warnings or skip analysis on generated elements.
+
+To generate the annotation and version classes:
+
+```java
+@BuildCommand(summary = "Generates version and annotation classes")
+public void genver() throws Exception {
+new GeneratedVersionOperation()
+    .fromProject(this)
+    .generateAnnotation(true)
+    .execute();
+}
+```
+
+The annotation is automatically generated in the same package as the version class.
