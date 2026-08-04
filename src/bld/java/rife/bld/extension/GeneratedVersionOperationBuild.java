@@ -51,11 +51,12 @@ public class GeneratedVersionOperationBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "bld",
                         version(2, 3, 1, "SNAPSHOT")));
         scope(provided)
-                .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(1, 1, 0, "SNAPSHOT")))
+                .include(dependency("org.jspecify", "jspecify", "1.0.1"))
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 10, 2)));
+                        version(4, 10, 3)));
         scope(test)
+                .include(dependency("com.uwyn.rife2", "bld-testing-helpers",
+                        version(1, 1, 0, "SNAPSHOT")))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.assertj", "assertj-core",
@@ -71,7 +72,7 @@ public class GeneratedVersionOperationBuild extends Project {
                 .link("https://rife2.github.io/bld/")
                 .link("https://rife2.github.io/rife2/")
                 .link("https://javadoc.io/doc/net.sourceforge.pmd/pmd-core/latest/")
-                .link("https://findbugs.sourceforge.net/api/");
+                .link("https://jspecify.dev/docs/api/");
 
         publishOperation()
                 .repositories(version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2"))

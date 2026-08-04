@@ -28,7 +28,7 @@ import rife.bld.BaseProject;
 import rife.bld.Project;
 import rife.bld.blueprints.BaseProjectBlueprint;
 import rife.bld.dependencies.VersionNumber;
-import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.testing.LoggingExtension;
 import rife.bld.extension.tools.IOTools;
 
 import java.io.File;

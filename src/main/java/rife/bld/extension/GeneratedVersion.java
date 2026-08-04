@@ -16,10 +16,10 @@
 
 package rife.bld.extension;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import rife.bld.BaseProject;
-import rife.bld.extension.testing.VisibleForTesting;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.extension.tools.ObjectTools;
 import rife.bld.extension.tools.TextTools;
@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public class GeneratedVersion {
 
     private static final String CLASS_NAME = "className";
@@ -55,12 +56,12 @@ public class GeneratedVersion {
     private static final String REVISION = "revision";
     private static final String VERSION = "version";
     private String className_ = "GeneratedVersion";
-    private File directory_;
+    private @Nullable File directory_;
     private String extension_ = JAVA_EXTENSION;
-    private String packageName_;
-    private String projectName_;
-    private BaseProject project_;
-    private File template_;
+    private @Nullable String packageName_;
+    private @Nullable String projectName_;
+    private @Nullable BaseProject project_;
+    private @Nullable File template_;
 
     /**
      * Returns the class name.
@@ -78,7 +79,7 @@ public class GeneratedVersion {
      * @throws NullPointerException     if {@code className} is {@code null}
      * @throws IllegalArgumentException if {@code className} is empty or invalid
      */
-    public void setClassName(@NonNull String className) {
+    public void setClassName(String className) {
         ObjectTools.requireNotEmpty(className, CLASS_NAME);
         if (!SourceVersion.isIdentifier(className) || SourceVersion.isKeyword(className)) {
             throw new IllegalArgumentException("Invalid class name: " + className);
@@ -91,6 +92,7 @@ public class GeneratedVersion {
      *
      * @return the destination directory
      */
+    @Nullable
     public File getDirectory() {
         return directory_;
     }
@@ -101,7 +103,7 @@ public class GeneratedVersion {
      * @param directory the destination directory
      * @throws NullPointerException if {@code directory} is {@code null}
      */
-    public void setDirectory(@NonNull File directory) {
+    public void setDirectory(File directory) {
         ObjectTools.requireNonNull(directory, "directory");
         this.directory_ = directory;
     }
@@ -126,8 +128,8 @@ public class GeneratedVersion {
      * @throws IllegalArgumentException if {@code extension} after trimming is not a {@code .}
      *                                  followed by at least one character
      */
-    public void setExtension(@NonNull String extension) {
-        ObjectTools.requireNonNull(extension, "extension");
+    public void setExtension(String extension) {
+        TextTools.requireNotBlank(extension, "extension");
         var trimmed = extension.strip();
         if (!trimmed.startsWith(".") || trimmed.length() < 2) {
             throw new IllegalArgumentException(
@@ -141,6 +143,7 @@ public class GeneratedVersion {
      *
      * @return the package name
      */
+    @Nullable
     public String getPackageName() {
         return packageName_;
     }
@@ -152,7 +155,7 @@ public class GeneratedVersion {
      * @throws NullPointerException     if {@code packageName} is {@code null}
      * @throws IllegalArgumentException if {@code packageName} is invalid
      */
-    public void setPackageName(@NonNull String packageName) {
+    public void setPackageName(String packageName) {
         ObjectTools.requireNonNull(packageName, PACKAGE_NAME);
         if (!packageName.isEmpty() && !SourceVersion.isName(packageName)) {
             throw new IllegalArgumentException("Invalid package name: " + packageName);
@@ -165,6 +168,7 @@ public class GeneratedVersion {
      *
      * @return the project
      */
+    @Nullable
     @SuppressFBWarnings(value = "EI_EXPOSE_REP",
             justification = "Caller retains ownership of the project reference.")
     public BaseProject getProject() {
@@ -178,7 +182,7 @@ public class GeneratedVersion {
      */
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
             justification = "Intentional: caller retains ownership of the project reference.")
-    public void setProject(@NonNull BaseProject project) {
+    public void setProject(BaseProject project) {
         ObjectTools.requireNonNull(project, PROJECT);
         this.project_ = project;
     }
@@ -188,6 +192,7 @@ public class GeneratedVersion {
      *
      * @return the project name
      */
+    @Nullable
     public String getProjectName() {
         return projectName_;
     }
@@ -196,9 +201,11 @@ public class GeneratedVersion {
      * Sets the project name.
      *
      * @param projectName the project name
+     * @throws NullPointerException     if {@code projectName} is {@code null}
+     * @throws IllegalArgumentException if {@code projectName} is blank
      */
-    public void setProjectName(@NonNull String projectName) {
-        ObjectTools.requireNonNull(projectName, "projectName");
+    public void setProjectName(String projectName) {
+        TextTools.requireNotBlank(projectName, "projectName");
         this.projectName_ = projectName;
     }
 
@@ -207,6 +214,7 @@ public class GeneratedVersion {
      *
      * @return the template file
      */
+    @Nullable
     public File getTemplate() {
         return template_;
     }
@@ -216,7 +224,7 @@ public class GeneratedVersion {
      *
      * @param template the template
      */
-    public void setTemplate(@NonNull File template) {
+    public void setTemplate(File template) {
         ObjectTools.requireNonNull(template, "template");
         this.template_ = template;
     }
@@ -236,7 +244,6 @@ public class GeneratedVersion {
      * @return the template
      * @throws NullPointerException if the project has not been set
      */
-    @VisibleForTesting
     Template fillTemplate(Template template) {
         ObjectTools.requireNonNull(template, "template");
         ObjectTools.requireNonNull(project_, PROJECT);
@@ -301,6 +308,7 @@ public class GeneratedVersion {
      * @param fileName the file name, including extension
      * @return the resolved file
      */
+    @SuppressWarnings("SameParameterValue")
     Optional<File> resolveClassFile(String fileName) {
         if (directory_ == null) {
             return Optional.empty();

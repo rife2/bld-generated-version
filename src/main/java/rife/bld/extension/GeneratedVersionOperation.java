@@ -16,10 +16,11 @@
 
 package rife.bld.extension;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jspecify.annotations.NullMarked;
 import rife.bld.BaseProject;
 import rife.bld.extension.tools.ObjectTools;
+import rife.bld.extension.tools.TextTools;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 import rife.resources.ResourceFinderClasspath;
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersionOperation> {
 
     private static final String GENERATED = "generated";
@@ -86,7 +88,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @throws NullPointerException     if {@code className} is {@code null}
      * @throws IllegalArgumentException if {@code className} is empty or invalid
      */
-    public GeneratedVersionOperation className(@NonNull String className) {
+    public GeneratedVersionOperation className(String className) {
         generatedVersion_.setClassName(className);
         return this;
     }
@@ -97,10 +99,10 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @param template the template path
      * @return this operation instance
      * @throws NullPointerException     if {@code template} is {@code null}
-     * @throws IllegalArgumentException if {@code template} is empty
+     * @throws IllegalArgumentException if {@code template} is blank
      */
-    public GeneratedVersionOperation classTemplate(@NonNull String template) {
-        ObjectTools.requireNotEmpty(template, "template");
+    public GeneratedVersionOperation classTemplate(String template) {
+        TextTools.requireNotBlank(template, "template");
         return classTemplate(new File(template));
     }
 
@@ -111,7 +113,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code template} is {@code null}
      */
-    public GeneratedVersionOperation classTemplate(@NonNull File template) {
+    public GeneratedVersionOperation classTemplate(File template) {
         generatedVersion_.setTemplate(template);
         return this;
     }
@@ -123,7 +125,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code template} is {@code null}
      */
-    public GeneratedVersionOperation classTemplate(@NonNull Path template) {
+    public GeneratedVersionOperation classTemplate(Path template) {
         ObjectTools.requireNonNull(template, "template");
         return classTemplate(template.toFile());
     }
@@ -135,7 +137,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code directory} is {@code null}
      */
-    public GeneratedVersionOperation directory(@NonNull String directory) {
+    public GeneratedVersionOperation directory(String directory) {
         ObjectTools.requireNonNull(directory, "directory");
         return directory(new File(directory));
     }
@@ -147,7 +149,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code directory} is {@code null}
      */
-    public GeneratedVersionOperation directory(@NonNull File directory) {
+    public GeneratedVersionOperation directory(File directory) {
         generatedVersion_.setDirectory(directory);
         return this;
     }
@@ -159,7 +161,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code directory} is {@code null}
      */
-    public GeneratedVersionOperation directory(@NonNull Path directory) {
+    public GeneratedVersionOperation directory(Path directory) {
         ObjectTools.requireNonNull(directory, "directory");
         return directory(directory.toFile());
     }
@@ -176,7 +178,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @throws IllegalArgumentException if {@code extension} after trimming is not a {@code .}
      *                                  followed by at least one character
      */
-    public GeneratedVersionOperation extension(@NonNull String extension) {
+    public GeneratedVersionOperation extension(String extension) {
         generatedVersion_.setExtension(extension);
         return this;
     }
@@ -196,11 +198,10 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code project} is {@code null}
      */
-    public GeneratedVersionOperation fromProject(@NonNull BaseProject project) {
+    public GeneratedVersionOperation fromProject(BaseProject project) {
+        ObjectTools.requireNonNull(project, "project");
         generatedVersion_.setProject(project);
-        if (generatedVersion_.getDirectory() == null) {
-            generatedVersion_.setDirectory(project.srcMainJavaDirectory());
-        }
+        generatedVersion_.setDirectory(project.srcMainJavaDirectory());
         return this;
     }
 
@@ -238,7 +239,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code packageName} is {@code null}
      */
-    public GeneratedVersionOperation packageName(@NonNull String packageName) {
+    public GeneratedVersionOperation packageName(String packageName) {
         generatedVersion_.setPackageName(packageName);
         return this;
     }
@@ -250,7 +251,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
      * @return this operation instance
      * @throws NullPointerException if {@code projectName} is {@code null}
      */
-    public GeneratedVersionOperation projectName(@NonNull String projectName) {
+    public GeneratedVersionOperation projectName(String projectName) {
         generatedVersion_.setProjectName(projectName);
         return this;
     }

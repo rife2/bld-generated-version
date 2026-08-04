@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import rife.bld.Project;
 import rife.bld.dependencies.VersionNumber;
+import rife.bld.testing.BlankSource;
 import rife.bld.extension.tools.IOTools;
 import rife.resources.ResourceFinderDirectories;
 import rife.resources.ResourceFinderGroup;
@@ -89,13 +90,23 @@ class GeneratedVersionTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"java", ".", " ", ""})
+        @ValueSource(strings = {"java", "."})
         @DisplayName("setExtension rejects invalid values")
         void setExtensionRejectsInvalid(String ext) {
             var gv = new GeneratedVersion();
             assertThatIllegalArgumentException()
                     .isThrownBy(() -> gv.setExtension(ext))
                     .withMessageContaining("Extension must be '.'");
+        }
+
+        @ParameterizedTest
+        @BlankSource
+        @DisplayName("setExtension rejects blank values")
+        void setExtensionRejectsBlank(String ext) {
+            var gv = new GeneratedVersion();
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> gv.setExtension(ext))
+                    .withMessageContaining("extension must not be blank");
         }
 
         @Test
