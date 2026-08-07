@@ -30,7 +30,7 @@ public class SampleBuild extends Project {
 
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
-        var junit = version(6, 1, 2);
+        var junit = version(6, 1, 3);
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit));
