@@ -32,8 +32,8 @@ jobs:
             lib
           key: ${{ runner.os }}-bld-java${{ matrix.java-version }}-lib
 
-      - name: Compile source code [example]
-        working-directory: example
+      - name: Compile source code [examples]
+        working-directory: examples
         run: ./bld --auto-download-purge clean compile
 
       - name: Run examples
