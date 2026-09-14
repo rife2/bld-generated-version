@@ -244,6 +244,8 @@ public class GeneratedVersion {
      * @return the template
      * @throws NullPointerException if the project has not been set
      */
+    @SuppressFBWarnings(value = "CFS_CONFUSING_FUNCTION_SEMANTICS",
+            justification = "Intentional: populates and returns the same mutable Template for chaining.")
     Template fillTemplate(Template template) {
         ObjectTools.requireNonNull(template, "template");
         ObjectTools.requireNonNull(project_, PROJECT);

@@ -52,6 +52,7 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
 
     @Override
     @SuppressWarnings("PMD.PreserveStackTrace")
+    @SuppressFBWarnings({"LEST_LOST_EXCEPTION_STACK_TRACE", "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"})
     public void execute() throws ExitStatusException {
         ObjectTools.requireNonNull(generatedVersion_.getProject(), "project");
         ObjectTools.requireNonNull(generatedVersion_.getDirectory(), "directory");
@@ -66,11 +67,11 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
                     .orElseThrow(() -> new IOException("Version class could not be written"));
 
             if (!silent() && logger.isLoggable(Level.INFO)) {
+                var project = generatedVersion_.getProject();
+                // project is non-null due to requireNonNull above, version() may be null -> String.valueOf is null-safe
+                var version = String.valueOf(project.version());
                 logger.log(Level.INFO, "Generated version ({0}) class saved to: {1}",
-                        new Object[]{
-                                generatedVersion_.getProject().version(),
-                                versionFile.toURI()
-                        });
+                        new Object[]{version, versionFile.toURI()});
             }
         } catch (IOException e) {
             if (!silent() && logger.isLoggable(Level.SEVERE)) {
@@ -272,11 +273,11 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
                     logger.log(Level.INFO, "Generated annotation class saved to: {0}", file.toURI()));
         }
 
-        // Inject @Generated if the annotation class exists on disk (written now or previously)
         var annotationTarget = annotationFile
-                .or(() -> generatedVersion_.resolveClassFile("Generated.java"));
-        if (annotationTarget.map(File::exists).orElse(false)
-                && versionTemplate.hasValueId(GENERATED)) {
+                .or(() -> generatedVersion_.resolveClassFile("Generated.java"))
+                .filter(File::exists);
+
+        if (annotationTarget.isPresent() && versionTemplate.hasValueId(GENERATED)) {
             versionTemplate.setValue(GENERATED, "@Generated");
         }
     }
@@ -303,7 +304,8 @@ public class GeneratedVersionOperation extends AbstractOperation<GeneratedVersio
             return findResourceTemplate("default_generated_version");
         } else {
             var file = customTemplate.getAbsoluteFile();
-            var parent = file.getParentFile() != null ? file.getParentFile() : new File(".");
+            var parentFile = file.getParentFile();
+            var parent = parentFile != null ? parentFile : new File(".");
             var group = new ResourceFinderGroup().add(new ResourceFinderDirectories(parent));
             return TemplateFactory.TXT.setResourceFinder(group).get(file.getName());
         }
